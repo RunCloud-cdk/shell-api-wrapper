@@ -30,9 +30,9 @@ function rcdk_args_check {
 }
 
 # Init work with rcdk by server_id
-function rcdk_init {
-
-}
+#function rcdk_init {
+#
+#}
 
 # Parse response message to the simple raw format (Internal)
 # Example: rcdk_data_parse "$response"
