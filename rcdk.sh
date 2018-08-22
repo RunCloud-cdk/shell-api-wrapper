@@ -24,9 +24,14 @@ function rcdk_args_check {
   local c="$1"
 
   if [ "${#a[@]}" -lt "$c" ]; then
-    echo "Error: Missing required arguments."
+    echo "Error: Missing required arguments. Use 'rcdk -h' command for help "
     exit 1
   fi
+}
+
+# Init work with rcdk by server_id
+function rcdk_init {
+
 }
 
 # Parse response message to the simple raw format (Internal)
@@ -78,7 +83,7 @@ function rcdk_dbs_table {
 }
 
 # Gets a list of all databases or searching info about current database through the name
-# Example1: rcdk_dbs $page_number, $name_for_search
+# Example1: rcdk_dbs $page_number, $search_name
 function rcdk_dbs_get {
     rcdk_args_check 1 "$@"
     if [ "$2" ]; then local name=$2; fi
@@ -111,7 +116,7 @@ function rcdk_dbusers_table {
 }
 
 # Gets a list of all db-users or searching info about current db-user through the name
-# Example1: rcdk_dbusers $page_number, $name_for_search
+# Example1: rcdk_dbusers $page_number, $search_name
 function rcdk_dbusers_get {
     rcdk_args_check 1 "$@"
     if [ "$2" ]; then local name=$2; fi
@@ -181,7 +186,7 @@ function rcdk_sysusers_table {
 }
 
 # Gets a list of all system users or searching info about current system user through the name
-# Example1: rcdk_sysusers $page_number, $name_for_search
+# Example1: rcdk_sysusers $page_number, $search_name
 function rcdk_sysusers_get {
     rcdk_args_check 1 "$@"
     if [ "$2" ]; then local username=$2; fi
@@ -234,8 +239,8 @@ function rcdk_ssh_table {
     echo $1 | jq -r '["KEY_ID","LABEL"], ["======","====="], (.data[] | [.id, .label]) | @tsv'
 }
 
-# Gets a list of all system users or searching info about current system user through the name
-# Example1: rcdk_ssh $page_number, $name_for_search
+# Gets a list of all ssh keys or searching info about current key through the name
+# Example1: rcdk_ssh $page_number, $search_name
 function rcdk_ssh_get {
     rcdk_args_check 1 "$@"
     if [ "$2" ]; then local search=$2; fi
@@ -260,16 +265,87 @@ function rcdk_ssh_delete {
 }
 
 # Namespace function for help info
-#function rcdk_help {
-#
-#}
+function rcdk_help {
+    echo -e "Runcloud Shell API \nusage: rcdk <command> [<args>] [<options>]\n"\
+    "\nCommands\n" \
+    "\n     ping\t\t check connection with API" \
+    "\n     init\t\t select the server you want to work with" \
+    "\n     sysusers\t\t work with system users" \
+    "\n     servers\t\t work with servers" \
+    "\n     dbs\t\t work with databases" \
+    "\n     dbusers\t\t work with databases users" \
+    "\n     ssh\t\t work with ssh keys\n" \
+    "\nOptions\n" \
+    "\n     -v, --version\t checking rcdk api shell version\n"
+}
+
+# Function for a dbs help info
+function rcdk_help_dbs {
+    echo -e "\nusage: rcdk dbs <command> [<args>]\n"\
+    "\nCommands\n" \
+    "\n     create\t\t create a new database" \
+    "\n     delete\t\t delete exists database" \
+    "\n     list\t\t view one page of databases list or search databases by chars\n" \
+    "\nArguments\n" \
+    "\n     create\t\t [*db_name, db_collation]" \
+    "\n     delete\t\t [*db_name, *db_id]" \
+    "\n     list\t\t [*page_number, search_name]\n"
+}
+
+# Function for a db users help info
+function rcdk_help_dbusers {
+    echo -e "\nusage: rcdk dbusers <command> [<args>]\n"\
+    "\nCommands\n" \
+    "\n     create\t\t create a new database user" \
+    "\n     delete\t\t delete exists database user" \
+    "\n     list\t\t view one page of db users list or search users by chars" \
+    "\n     attach\t\t attach database user to database" \
+    "\n     revoke\t\t revoke database user from database" \
+    "\n     passwd\t\t change password for the db user\n" \
+    "\nArguments\n" \
+    "\n     create\t\t [*db_user, db_user_pass]\t by default, a 32-character password will be generated" \
+    "\n     delete\t\t [*db_user, *db_user_id]" \
+    "\n     list\t\t [*page_number, search_name]" \
+    "\n     attach\t\t [*db_user, *db_id]" \
+    "\n     revoke\t\t [*db_user, *db_id]" \
+    "\n     passwd\t\t [*db_user_id, ds_user_pass]\t by default, a 32-character password will be generated\n"
+}
+
+# Function for a system users help info
+function rcdk_help_sysusers {
+    echo -e "\nusage: rcdk sysusers <command> [<args>]\n"\
+    "\nCommands\n" \
+    "\n     create\t\t create a new database" \
+    "\n     delete\t\t delete exists database" \
+    "\n     list\t\t view one page of system users list or search users by chars" \
+    "\n     passwd\t\t change password for the system user\n" \
+    "\nArguments\n" \
+    "\n     create\t\t [*sysuser_name, sysuser_pass]\t by default, a 16-character password will be generated" \
+    "\n     delete\t\t [*sysuser_name, *sysuser_id]" \
+    "\n     list\t\t [*page_number, search_name]" \
+    "\n     passwd\t\t [*db_user_id, ds_user_pass]\t by default, a 16-character password will be generated\n"
+}
+
+# Function for a dbs help info
+function rcdk_help_ssh {
+    echo -e "\nusage: rcdk dbs <command> [<args>]\n"\
+    "\nCommands\n" \
+    "\n     add\t\t add new ssh key for the system user" \
+    "\n     delete\t\t delete exists ssh key" \
+    "\n     list\t\t view one page of keys list or search keys by chars\n" \
+    "\nArguments\n" \
+    "\n     add\t\t [*label, *sys_user_name, *pub_key]\t !add pub_key in apostrophes!" \
+    "\n     delete\t\t [*label, *key_id]" \
+    "\n     list\t\t [*page_number, search_name]\n"
+}
 
 # Namespace function for databases - Defaults to listing databases
 function rcdk_dbs {
   case "$1" in
     "create") rcdk_db_create "${@:2}";;
     "delete") rcdk_db_delete "${@:2}";;
-    *) rcdk_dbs_get "${@:1}";;
+    "list") rcdk_dbs_get "${@:2}";;
+    *) rcdk_help_dbs;;
   esac
 }
 
@@ -281,7 +357,8 @@ function rcdk_dbusers {
     "attach") rcdk_dbuser_attach "${@:2}";;
     "revoke") rcdk_dbuser_revoke "${@:2}";;
     "passwd") rcdk_dbuser_passwd "${@:2}";;
-    *) rcdk_dbusers_get "${@:1}";;
+    "list") rcdk_dbusers_get "${@:2}";;
+    *) rcdk_help_dbusers;;
   esac
 }
 
@@ -291,7 +368,8 @@ function rcdk_sysusers {
     "create") rcdk_sysusers_create "${@:2}";;
     "delete") rcdk_sysusers_delete "${@:2}";;
     "passwd") rcdk_sysusers_passwd "${@:2}";;
-    *) rcdk_sysusers_get "${@:1}";;
+    "list") rcdk_sysusers_get "${@:2}";;
+    *) rcdk_help_sysusers;;
   esac
 }
 
@@ -300,21 +378,27 @@ function rcdk_ssh {
     case "$1" in
     "add") rcdk_ssh_add "${@:2}";;
     "delete") rcdk_ssh_delete "${@:2}";;
-    *) rcdk_ssh_get "${@:1}";;
+    "list") rcdk_ssh_get "${@:2}";;
+    *) rcdk_help_ssh;;
   esac
 }
 
 # Main function for everything
 function rcdk {
   case "$1" in
+    "-v") echo "Runcloud API Shell Wrapper  Ver $rcdk_version"
+      exit 0;;
+    "--version") echo "Runcloud API Shell Wrapper  Ver $rcdk_version"
+      exit 0;;
     "ping") rcdk_ping;;
+    "init") rcdk_init"${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
+    "servers") rcdk_servers "${@:2}";;
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
     *)
-      echo "Runcloud API Shell Wrapper  Ver $rcdk_version"
-      exit 0;;
+      rcdk_help;;
   esac
 }
 
