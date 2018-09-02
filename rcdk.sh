@@ -213,7 +213,7 @@ function rcdk_dbusers_passwd {
 # Example: rcdk_sysusers_table "$response"
 function rcdk_sysusers_table {
   rcdk_args_check 1 "$@"
-  echo $1 | jq -r '["SYSUSER_ID","SYSUSER_NAME"], ["------------", "------------"], (.data[] | [.id, .username]) | @tsv'
+  echo $1 | jq -r '["SYS_USER_ID","SYS_USER_NAME"], ["------------", "------------"], (.data[] | [.id, .username]) | @tsv'
 }
 
 # Gets a list of all system users or searching info about current system user through the name
@@ -271,9 +271,77 @@ function rcdk_sysusers_passwd {
 }
 
 # Make a readable table from response data (Internal)
+# Example: rcdk_apps_table "$response"
+function rcdk_apps_table {
+  echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["----------","-------"], (.data[] | [.id, .name]) | @tsv'
+}
+
+# Gets a list of all servers or searching info about current server through the name
+# Example: rcdk_apps list 1
+function rcdk_apps_get {
+  rcdk_args_check 1 "$@"
+  if [ -z "${1//[0-9]/}" ] # if arg is number
+  then
+    local p_num=$1
+    local response=`rcdk_request "servers/$server_id/webapps?page=$p_num" "GET"`
+  else
+    local search=$1
+    local response=`rcdk_request "servers/$server_id/webapps?page=1&search=$search" "GET"`
+  fi
+  rcdk_apps_table "$response"
+}
+
+# Create new runcloud web application
+function rcdk_apps_create {
+  echo -e "Create web application step by step\n"
+  read -p "Enter a web application name: " app_name
+  read -p "Enter a domain name for web application: " domain_name
+  read -p "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
+  read -p "Enter a public path ( leave empty for the root path ): " public_path
+  read -p "Choose PHP version ( write 'php70rc', 'php71rc' or 'php72rc' ): " php_version
+  read -p "Choose a web stack ( write 'hybrid' or 'nativenginx' ): " stack
+  read -p "Choose a timezone ( example: Europe/Moscow ): " timezone
+
+  local data=""
+    data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
+    data+="\"publicPath\":\"$public_path\",\"phpVersion\":\"$php_version\",\"stack\":\"$stack\","
+    data+="\"clickjackingProtection\":true,\"xssProtection\":true,\"mimeSniffingProtection\":true,"
+    data+="\"processManager\":\"ondemand\",\"processManagerMaxChildren\":50,\"processManagerMaxRequests\":500,"
+    data+="\"openBasedir\":\"/home/$user_name/webapps/$app_name:/var/lib/php/session:/tmp\",\"timezone\":\"$timezone\","
+    data+="\"disableFunctions\":\"getmyuid,passthru,leak,listen,diskfreespace,tmpfile,link,ignore_user_abord,shell_exec,dl,"
+    data+="set_time_limit,exec,system,highlight_file,source,show_source,fpassthru,virtual,posix_ctermid,posix_getcwd,"
+    data+="posix_getegid,posix_geteuid,posix_getgid,posix_getgrgid,posix_getgrnam,posix_getgroups,posix_getlogin,"
+    data+="posix_getpgid,posix_getpgrp,posix_getpid,posix,_getppid,posix_getpwuid,posix_getrlimit,posix_getsid,posix_getuid,"
+    data+="posix_isatty,posix_kill,posix_mkfifo,posix_setegid,posix_seteuid,posix_setgid,posix_setpgid,posix_setsid,"
+    data+="posix_setuid,posix_times,posix_ttyname,posix_uname,proc_open,proc_close,proc_nice,proc_terminate,escapeshellcmd,"
+    data+="ini_alter,popen,pcntl_exec,socket_accept,socket_bind,socket_clear_error,socket_close,socket_connect,symlink,"
+    data+="posix_geteuid,ini_alter,socket_listen,socket_create_listen,socket_read,socket_create_pair,stream_socket_server\","
+    data+="\"maxExecutionTime\":30,\"maxInputTime\":60,\"maxInputVars\":1000,\"memoryLimit\":256,\"postMaxSize\":256,"
+    data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
+
+  local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
+  rcdk_parse "$response"
+}
+
+# Delete exists web application from runcloud
+# Example: rcdk apps delete $web_app_name $web_app_id
+function rcdk_apps_delete {
+  rcdk_args_check 2 "$@"
+  read -p "Are you sure want to delete this application? Say 'y' or 'n': " accept
+  if [ "$accept" == "y" ]
+  then
+      local app_id=$2
+      local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$1\"}"`
+      rcdk_parse "$response"
+  else
+      echo "Deleting application $1 was canceled!"
+  fi
+}
+
+# Make a readable table from response data (Internal)
 # Example: rcdk_servers_table "$response"
 function rcdk_servers_table {
-  echo $1 | jq -r '["SERVER_ID","SERVER_NAME", "IP_ADDRESS"], ["---------","-----------","---------"], (.data[] | [.id, .serverName, .ipAddress]) | @tsv'
+  echo $1 | jq -r '["SERVER_ID","SERVER_NAME","IP_ADDRESS"], ["---------","-----------","---------"], (.data[] | [.id, .serverName, .ipAddress]) | @tsv'
 }
 
 # Gets a list of all servers or searching info about current server through the name
@@ -299,7 +367,7 @@ function rcdk_servers_create {
   if [ -n $3 ]
   then
       local provider=$3
-      data=data+",\"serverProvider\":\"$provider\""
+      data+=",\"serverProvider\":\"$provider\""
   fi
   local response=`rcdk_request "servers" "POST" $data`
   rcdk_parse "$response"
@@ -379,10 +447,23 @@ function rcdk_help_dbs {
   "\nCommands\n" \
   "\n     create\t\t create a new database" \
   "\n     delete\t\t delete exists database" \
-  "\n     list\t\t view one page of databases list or search databases by chars\n" \
+  "\n     list\t\t view one page of databases list or search them by chars\n" \
   "\nArguments\n" \
   "\n     create\t\t [*db_name, db_collation]" \
   "\n     delete\t\t [*db_name, *db_id]" \
+  "\n     list\t\t [*page_number || *search_name]\n"
+}
+
+# Function for a servers help info
+function rcdk_help_apps {
+  echo -e "\nusage: rcdk apps <command> [<args>]\n"\
+  "\nCommands\n" \
+  "\n     create\t\t create a new web application" \
+  "\n     delete\t\t delete exists web application" \
+  "\n     list\t\t view one page of web application list or search them by chars\n" \
+  "\nArguments\n" \
+  "\n     create\t\t this function asks you for all the arguments" \
+  "\n     delete\t\t [*app_name, *app_id]" \
   "\n     list\t\t [*page_number || *search_name]\n"
 }
 
@@ -392,7 +473,7 @@ function rcdk_help_servers {
   "\nCommands\n" \
   "\n     create\t\t create a new server" \
   "\n     delete\t\t delete exists server" \
-  "\n     list\t\t view one page of servers list or search servers by chars\n" \
+  "\n     list\t\t view one page of servers list or search them by chars\n" \
   "\nArguments\n" \
   "\n     create\t\t [*srv_name, *srv_ip, provider]" \
   "\n     delete\t\t [*srv_id]" \
@@ -405,7 +486,7 @@ function rcdk_help_dbusers {
   "\nCommands\n" \
   "\n     create\t\t create a new database user" \
   "\n     delete\t\t delete exists database user" \
-  "\n     list\t\t view one page of db users list or search users by chars" \
+  "\n     list\t\t view one page of db users list or search them by chars" \
   "\n     attach\t\t attach database user to database" \
   "\n     revoke\t\t revoke database user from database" \
   "\n     passwd\t\t change password for the db user\n" \
@@ -490,6 +571,16 @@ function rcdk_sysusers {
   esac
 }
 
+# Namespace function for apps
+function rcdk_apps {
+  case "$1" in
+    "create") rcdk_apps_create "${@:2}";;
+    "delete") rcdk_apps_delete "${@:2}";;
+    "list") rcdk_apps_get "${@:2}";;
+    *) rcdk_help_apps;;
+  esac
+}
+
 # Namespace function for ssh keys
 function rcdk_ssh {
   case "$1" in
@@ -510,6 +601,7 @@ function rcdk {
     "ping") rcdk_ping;;
     "init") rcdk_init "${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
+    "apps") rcdk_apps "${@:2}";;
     "servers") rcdk_servers "${@:2}";;
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
