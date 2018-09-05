@@ -7,6 +7,12 @@
 rcdk_name='Runcloud Shell API Wrapper'
 rcdk_version="1.0"
 
+# add some colors
+NC="\033[0m"
+RED="\033[0;31m"
+YELLOW="\033[0;33m"
+GREEN="\033[0;32m"
+
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]; then
 rcdk_config="api.conf"
@@ -23,7 +29,7 @@ function rcdk_args_check {
   local a=("${@:2}")
   local c="$1"
   if [ "${#a[@]}" -lt "$c" ]; then
-    echo "Error: Missing required arguments. Use 'rcdk -h' command for help "
+    echo -e "${RED}Error: Missing required arguments. Use 'rcdk -h' command for help "
     exit 1
   fi
 }
@@ -31,7 +37,8 @@ function rcdk_args_check {
 # Parse response message to the simple raw format (Internal)
 # Example: rcdk_data_parse "$response"
 function rcdk_parse {
-  echo $1 | jq -rc '.message'
+  local result=`echo $1 | jq -rc ".message"`
+  echo -e "${GREEN}$result"
 }
 
 # Request construct API function (Internal)
@@ -76,14 +83,6 @@ function rcdk_postfix_gen {
     postfix=$postfix${symbols:$(expr $RANDOM % ${#symbols}):1}
   done
   echo $postfix
-}
-
-# Init work with rcdk by server_id
-# Example: rcdk_init $server_id
-function rcdk_init {
-  read -p "Enter id of the server you want to work with: " server_id
-  sed -i "s/server_id=.*/server_id=$server_id/" $rcdk_config
-  echo "Successfully switched on $server_id server."
 }
 
 # Checking runcloud api connection
@@ -238,10 +237,10 @@ function rcdk_sysusers_create {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-      local pass=`rcdk_pass_gen 16`
-      echo "Password for user $1 - $pass"
+    local pass=`rcdk_pass_gen 16`
+    echo "Password for user $1 - $pass"
   else
-      local pass=$2
+    local pass=$2
   fi
   local response=`rcdk_request "servers/$server_id/users/" "POST" "{\"username\":\"$1\",\"password\":\"$pass\",\"verifyPassword\":\"$pass\"}"`
   rcdk_parse "$response"
@@ -261,10 +260,10 @@ function rcdk_sysusers_passwd {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-      local pass=`rcdk_pass_gen 16`
-      echo "New password is $pass"
+    local pass=`rcdk_pass_gen 16`
+    echo "New password is $pass"
   else
-      local pass=$2
+    local pass=$2
   fi
   local response=`rcdk_request "servers/$server_id/users/$1" "PATCH" "{\"password\":\"$pass\",\"verifyPassword\":\"$pass\"}"`
   rcdk_parse "$response"
@@ -294,14 +293,17 @@ function rcdk_apps_get {
 # Create new runcloud web application
 function rcdk_apps_create {
   echo -e "Create web application step by step\n"
-  read -p "Enter a web application name: " app_name
-  read -p "Enter a domain name for web application: " domain_name
-  read -p "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
-  read -p "Enter a public path ( leave empty for the root path ): " public_path
-  read -p "Choose PHP version ( write 'php70rc', 'php71rc' or 'php72rc' ): " php_version
-  read -p "Choose a web stack ( write 'hybrid' or 'nativenginx' ): " stack
-  read -p "Choose a timezone ( example: Europe/Moscow ): " timezone
-
+  read -ep "Enter a web application name: " app_name
+  read -ep "Enter a domain name for web application: " domain_name
+  read -ep "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
+  read -ep "Enter a public path ( leave empty for the root path ): " public_path
+  read -ep "Choose PHP version ( write 'php70rc', 'php71rc' or 'php72rc' ): " php_version
+  read -ep "Choose a web stack ( write 'hybrid' or 'nativenginx' ): " stack
+  read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
+  if [[ $timezone = '' ]]
+  then
+    timezone+='Asia/Jerusalem'
+  fi
   local data=""
     data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
     data+="\"publicPath\":\"$public_path\",\"phpVersion\":\"$php_version\",\"stack\":\"$stack\","
@@ -318,9 +320,9 @@ function rcdk_apps_create {
     data+="posix_geteuid,ini_alter,socket_listen,socket_create_listen,socket_read,socket_create_pair,stream_socket_server\","
     data+="\"maxExecutionTime\":30,\"maxInputTime\":60,\"maxInputVars\":1000,\"memoryLimit\":256,\"postMaxSize\":256,"
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
-
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
+
 }
 
 # Delete exists web application from runcloud
@@ -330,11 +332,11 @@ function rcdk_apps_delete {
   read -p "Are you sure want to delete this application? Say 'y' or 'n': " accept
   if [ "$accept" == "y" ]
   then
-      local app_id=$2
-      local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$1\"}"`
-      rcdk_parse "$response"
+    local app_id=$2
+    local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$1\"}"`
+    rcdk_parse "$response"
   else
-      echo "Deleting application $1 was canceled!"
+    echo "Deleting application $1 was canceled!"
   fi
 }
 
@@ -363,12 +365,13 @@ function rcdk_servers_get {
 # Example: rcdk servers create $srv_name $srv_ip $provider
 function rcdk_servers_create {
   rcdk_args_check 2 "$@"
-  local data="{\"serverName\":\"$1\",\"ipAddress\":\"$2\"}"
+  local data="{\"serverName\":\"$1\",\"ipAddress\":\"$2\""
   if [ -n $3 ]
   then
-      local provider=$3
-      data+=",\"serverProvider\":\"$provider\""
+    local provider=$3
+    data+=",\"serverProvider\":\"$provider\""
   fi
+  data+="}"
   local response=`rcdk_request "servers" "POST" $data`
   rcdk_parse "$response"
 }
@@ -377,16 +380,25 @@ function rcdk_servers_create {
 # Example: rcdk servers delete $srv_id
 function rcdk_servers_delete {
   rcdk_args_check 1 "$@"
-  echo -n "Are you sure want to delete this server? Say 'yes' or 'no': "
+  echo -n "Are you sure want to delete this server? Say 'y' or 'n': "
   read accept
-  if [ $accept -eq "yes" ]
+  if [ $accept -eq "y" ]
   then
-      local response=`rcdk_request "servers" "DELETE" "{\"typeYes\":\"YES\",\"certifyToDeleteServer\":\"true\",
-      \"proceedToDeletion\":\"true\",\"lastWarning\":\"true\"}"`
-      rcdk_parse "$response"
+    local response=`rcdk_request "servers" "DELETE" "{\"typeYes\":\"YES\",\"certifyToDeleteServer\":\"true\",
+    \"proceedToDeletion\":\"true\",\"lastWarning\":\"true\"}"`
+    rcdk_parse "$response"
   else
-      exit 1
+    exit 1
   fi
+}
+
+# Init work with rcdk by server_id
+# Example: rcdk_init $server_id
+function rcdk_init {
+  rcdk servers list 1; echo -e ""
+  read -ep "Enter id of the server you want to work with: " server_id
+  sed -i "s/server_id=.*/server_id=$server_id/" $rcdk_config
+  echo -e "${GREEN}Successfully switched on $server_id server."
 }
 
 # Make a readable table from response data (Internal)
