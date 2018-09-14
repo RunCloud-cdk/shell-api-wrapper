@@ -1,17 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Runcloud API Shell Wrapper
 # by Captain4eyes from CDK team
 # https://github.com/RunCloud-cdk/shell-api-wrapper
 
+# Stop script execution in case of error
+set -o errexit
+
 rcdk_name='Runcloud Shell API Wrapper'
 rcdk_version="1.0"
 
-# add some colors
-NC="\033[0m"
-RED="\033[0;31m"
-YELLOW="\033[0;33m"
-GREEN="\033[0;32m"
+# add some color constants
+readonly NC="\033[0m"
+readonly RED="\033[0;31m"
+readonly YELLOW="\033[0;33m"
+readonly GREEN="\033[0;32m"
 
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]; then
@@ -45,10 +48,10 @@ function rcdk_parse {
 # Example: rcdk_request "servers/$server_id/webapps" "POST"
 function rcdk_request {
   rcdk_args_check 2 "$@"
-  if [ "$2" ]; then local t="-X $2"; fi
-  if [ "$3" ]; then local d="-d $3"; fi
+  if [[ $2 ]]; then local t="-X $2"; fi
+  if [[ $3 ]]; then local d="-d $3"; fi
   local response=`curl -s $t https://manage.runcloud.io/base-api/$1 -u $api_key:$api_secret_key -H "Content-Type: application/json" "$d"`
-  if [ ! "$response" ]; then response='{"error":{"message":"No response from Runcloud."}}'; fi
+  if [[ ! $response ]]; then response='{"error":{"message":"No response from Runcloud."}}'; fi
   echo $response | tr '\n' ' '
 }
 
@@ -104,11 +107,11 @@ function rcdk_dbs_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers/$server_id/databases?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers/$server_id/databases?page=$page_num" "GET"`
   else
-    local name=$1
-    local response=`rcdk_request "servers/$server_id/databases?page=1&name=$name" "GET"`
+    local src_name=$1
+    local response=`rcdk_request "servers/$server_id/databases?page=1&name=$src_name" "GET"`
   fi
   rcdk_dbs_table "$response"
 }
@@ -144,11 +147,11 @@ function rcdk_dbusers_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers/$server_id/databaseusers?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers/$server_id/databaseusers?page=$page_num" "GET"`
   else
-    local name=$1
-    local response=`rcdk_request "servers/$server_id/databaseusers?page=1&name=$name" "GET"`
+    local src_name=$1
+    local response=`rcdk_request "servers/$server_id/databaseusers?page=1&name=$src_name" "GET"`
   fi
   rcdk_dbusers_table "$response"
 }
@@ -173,7 +176,9 @@ function rcdk_dbusers_create {
 # Example: rcdk dbusers delete $db_user $db_user_id
 function rcdk_dbusers_delete {
   rcdk_args_check 2 "$@"
-  local response=`rcdk_request "servers/$server_id/databaseusers/$2" "DELETE" "{\"databaseUser\":\"$1\"}"`
+  local db_user_name=$1
+  local db_user_id=$2
+  local response=`rcdk_request "servers/$server_id/databaseusers/$db_user_id" "DELETE" "{\"databaseUser\":\"$db_user_name\"}"`
   rcdk_parse "$response"
 }
 
@@ -181,7 +186,9 @@ function rcdk_dbusers_delete {
 # Example: rcdk dbusers attach $db_user $db_id
 function rcdk_dbusers_attach {
   rcdk_args_check 2 "$@"
-  local response=`rcdk_request "servers/$server_id/databases/$2/attachuser" "POST" "{\"databaseUser\":\"$1\"}"`
+  local db_user_name=$1
+  local db_user_id=$2
+  local response=`rcdk_request "servers/$server_id/databases/$db_user_id/attachuser" "POST" "{\"databaseUser\":\"$db_user_name\"}"`
   rcdk_parse "$response"
 }
 
@@ -189,7 +196,9 @@ function rcdk_dbusers_attach {
 # Example: rcdk dbusers revoke $db_user $db_id
 function rcdk_dbusers_revoke {
   rcdk_args_check 2 "$@"
-  local response=`rcdk_request "servers/$server_id/databases/$2/attachuser" "DELETE" "{\"databaseUser\":\"$1\"}"`
+  local db_user_name=$1
+  local db_user_id=$2
+  local response=`rcdk_request "servers/$server_id/databases/$db_user_id/attachuser" "DELETE" "{\"databaseUser\":\"$db_user_name\"}"`
   rcdk_parse "$response"
 }
 
@@ -221,8 +230,8 @@ function rcdk_sysusers_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers/$server_id/users?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers/$server_id/users?page=$page_num" "GET"`
   else
     local username=$1
     local response=`rcdk_request "servers/$server_id/users?page=1&username=$username" "GET"`
@@ -281,11 +290,11 @@ function rcdk_apps_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers/$server_id/webapps?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers/$server_id/webapps?page=$page_num" "GET"`
   else
-    local search=$1
-    local response=`rcdk_request "servers/$server_id/webapps?page=1&search=$search" "GET"`
+    local src_name=$1
+    local response=`rcdk_request "servers/$server_id/webapps?page=1&search=$src_name" "GET"`
   fi
   rcdk_apps_table "$response"
 }
@@ -332,12 +341,77 @@ function rcdk_apps_delete {
   read -p "Are you sure want to delete this application? Say 'y' or 'n': " accept
   if [ "$accept" == "y" ]
   then
+    local app_name=$1
     local app_id=$2
-    local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$1\"}"`
+    local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$app_name\"}"`
     rcdk_parse "$response"
   else
     echo "Deleting application $1 was canceled!"
   fi
+}
+
+# Render SSL info of application
+function rcdk_ssl_table {
+  rcdk_args_check 1 "$@"
+  local ssl_id=`echo $1 | jq -r .id`
+  if [ $ssl_id = 'null' ]
+  then
+    echo -e "SSL info\n--------\n${YELLOW}SSL is uninstalled for this application"
+  else
+    local method=`echo $1 | jq -r .method_humanize`
+    local renewal_date=`echo $1 | jq -r .renewal_date`
+    local cert=`echo $1 | jq -r .certificate`
+    echo -e "SSL info\n--------\nSSL id: $ssl_id\nSSL method: $method\nRenewal date: $renewal_date"
+  fi
+}
+
+# Get SSL info of application
+# Example: rcdk apps ssl-info web_app_id
+function rcdk_ssl_info {
+  rcdk_args_check 1 "$@"
+  local response=`rcdk_request "servers/$server_id/webapps/$1/ssl" "GET"`
+  rcdk_ssl_table "$response"
+}
+
+# Install ssl for the web application
+function rcdk_ssl_on {
+  read -ep "Select an ssl provider. Leave blank for LetsEncrypt: " provider
+  local data="{\"provider\":\"$provider\",\"enableHttp\":\true,\"enableHsts\":false"
+  if [[ $providier = '' ]]
+  then
+    provider+='letsencrypt'
+  else
+    provider+='custom'
+    read -ep "Type a private key from custom provider: " private_key
+    read -ep "Type a certificate: " certificate
+    data+=",\"privateKey\":\"$private_key\",\"certificate\":\"$certificate\""
+  fi
+  data+="}"
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/ssl" "POST" $data`
+  rcdk_parse "$response"
+}
+
+# Update ssl for the web application
+# Example: rcdk apps ssl-update $web_app_id $ssl_id
+function rcdk_ssl_update {
+  rcdk_args_check 2 "$@"
+  local ssl_info=rcdk_ssl_info $app_id
+  echo -e "Type 'true' or 'false'\n"
+  read -ep "Enable HTTP?: " http
+  read -ep "Enable HSTS?: " hsts
+  local data="{\"enableHttp\":\"$http\",\"enableHsts\":\"$hsts\"}"
+  local response=`rcdk_request "servers/$server_id/webapps/$1/ssl/$2" "PATCH" $data`
+  rcdk_parse "$response"
+}
+
+# Uninstall ssl for the web application
+# Example: rcdk apps ssl-off $web_app_id $ssl_id
+function rcdk_ssl_off {
+  rcdk_args_check 2 "$@"
+  local app_id=$1
+  local ssl_id=$2
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/ssl/$ssl_id" "DELETE"`
+  rcdk_ssl_table "$response"
 }
 
 # Make a readable table from response data (Internal)
@@ -352,11 +426,11 @@ function rcdk_servers_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers?page=$page_num" "GET"`
   else
-    local search=$1
-    local response=`rcdk_request "servers?page=1&search=$search" "GET"`
+    local src_name=$1
+    local response=`rcdk_request "servers?page=1&search=$src_name" "GET"`
   fi
   rcdk_servers_table "$response"
 }
@@ -413,11 +487,11 @@ function rcdk_ssh_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
   then
-    local p_num=$1
-    local response=`rcdk_request "servers/$server_id/sshcredentials?page=$p_num" "GET"`
+    local page_num=$1
+    local response=`rcdk_request "servers/$server_id/sshcredentials?page=$page_num" "GET"`
   else
-    local search=$1
-    local response=`rcdk_request "servers/$server_id/sshcredentials?page=1&search=$search" "GET"`
+    local src_name=$1
+    local response=`rcdk_request "servers/$server_id/sshcredentials?page=1&search=$src_name" "GET"`
   fi
   rcdk_ssh_table "$response"
 }
@@ -426,7 +500,10 @@ function rcdk_ssh_get {
 # Example: rcdk ssh add $label $sys_user_name $pub_key
 function rcdk_ssh_add {
   rcdk_args_check 3 "$@"
-  local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$1\",\"user\":\"$2\",\"publicKey\":\"$3\"}"`
+  local label=$1
+  local user_name=$2
+  local pub_key=$3
+  local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$label\",\"user\":\"$user_name\",\"publicKey\":\"$pub_key\"}"`
   rcdk_parse "$response"
 }
 
@@ -434,23 +511,26 @@ function rcdk_ssh_add {
 # Example: rcdk ssh delete $label $key_id
 function rcdk_ssh_delete {
   rcdk_args_check 2 "$@"
-  local response=`rcdk_request "servers/$server_id/sshcredentials/$2" "DELETE" "{\"label\":\"$1\"}"`
+  local label=$1
+  local key_id=$2
+  local response=`rcdk_request "servers/$server_id/sshcredentials/$key_id" "DELETE" "{\"label\":\"$label\"}"`
   rcdk_parse "$response"
 }
 
 # Namespace function for help info
 function rcdk_help {
-  echo -e "$rcdk_name\n \nusage: rcdk <command> [<args>] [<options>]\n"\
+  echo -e "\n$rcdk_name\n \nusage: rcdk <command> [<args>] [<options>]\n"\
   "\nCommands\n" \
   "\n     ping\t\t check connection with API" \
   "\n     init\t\t select the server you want to work with" \
   "\n     sysusers\t\t work with system users" \
   "\n     servers\t\t work with servers" \
+  "\n     apps\t\t work with web applications" \
   "\n     dbs\t\t work with databases" \
   "\n     dbusers\t\t work with databases users" \
   "\n     ssh\t\t work with ssh keys\n" \
   "\nOptions\n" \
-  "\n     -v, --version\t checking rcdk api shell version"
+  "\n     -v, --version\t checking rcdk api shell version\n"
 }
 
 # Function for a dbs help info
@@ -589,6 +669,10 @@ function rcdk_apps {
     "create") rcdk_apps_create "${@:2}";;
     "delete") rcdk_apps_delete "${@:2}";;
     "list") rcdk_apps_get "${@:2}";;
+    "ssl-info") rcdk_ssl_info "${@:2}";;
+    "sll-on") rcdk_ssl_on "${@:2}";;
+    "sll-update") rcdk_ssl_update "${@:2}";;
+    "sll-off") rcdk_ssl_off "${@:2}";;
     *) rcdk_help_apps;;
   esac
 }
@@ -618,8 +702,7 @@ function rcdk {
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
-    *)
-      rcdk_help;;
+    *) rcdk_help;;
   esac
 }
 
