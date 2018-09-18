@@ -417,7 +417,8 @@ function rcdk_ssl_off {
 # Make a readable table from response data (Internal)
 # Example: rcdk_servers_table "$response"
 function rcdk_servers_table {
-  echo $1 | jq -r '["SERVER_ID","SERVER_NAME","IP_ADDRESS"], ["---------","-----------","---------"], (.data[] | [.id, .serverName, .ipAddress]) | @tsv'
+  echo $1 | jq -r '["SERVER_ID","SERVER_NAME","IP_ADDRESS"], ["---------","-----------","---------"],
+   (.data[] | [.id, .serverName, .ipAddress]) | @tsv'
 }
 
 # Gets a list of all servers or searching info about current server through the name
@@ -464,6 +465,36 @@ function rcdk_servers_delete {
   else
     exit 1
   fi
+}
+
+# Gets a list of all server's services
+# Example: rcdk services list
+function rcdk_services_get {
+  local response=`rcdk_request "servers/$server_id/services" "GET"`
+   echo -e "$response" | jq -r '["SERVICE ","RUNNING  ","VERSION"],
+   ["----------------------------------------------"],
+    (.data[] | [.realName, .Running, .Version]) | @tsv'
+}
+
+# The action will be one of these: start,stop,restart,reload
+# Example: rcdk services action start nginx-rc
+function rcdk_services_action {
+  rcdk_args_check 3 "$@"
+  local cur=${COMP_WORDS[COMP_CWORD-1]}
+  local action=''
+  local real_name=$1
+  local name=$2
+  case "$cur" in
+    "start") action+='start';;
+    "stop") action+='stop';;
+    "restart") action+='restart';;
+    "reload") action+='reload';;
+    *) echo -e "This action does'nt exists!";;
+  esac
+
+  local data="{\"action\":\"$action\",\"realName\":\"$real_name\",\"name\":\"$name\"}"
+  local response=`rcdk_request "servers/$server_id/services" "PATCH" $data`
+  rcdk_parse "$response"
 }
 
 # Init work with rcdk by server_id
@@ -552,11 +583,19 @@ function rcdk_help_apps {
   "\nCommands\n" \
   "\n     create\t\t create a new web application" \
   "\n     delete\t\t delete exists web application" \
-  "\n     list\t\t view one page of web application list or search them by chars\n" \
+  "\n     list\t\t view one page of web application list or search them by chars" \
+  "\n     ssl-info\t\t show application ssl credentials" \
+  "\n     ssl-on\t\t install ssl for the application" \
+  "\n     ssl-update\t\t update ssl for the application" \
+  "\n     ssl-off\t\t uninstall ssl for the application\n" \
   "\nArguments\n" \
   "\n     create\t\t this function asks you for all the arguments" \
   "\n     delete\t\t [*app_name, *app_id]" \
-  "\n     list\t\t [*page_number || *search_name]\n"
+  "\n     list\t\t [*page_number || *search_name]" \
+  "\n     ssl-info\t\t [*web_app_id]" \
+  "\n     ssl-on\t\t this function asks you for all the arguments" \
+  "\n     ssl-update\t\t [*web_app_id, *ssl_id]" \
+  "\n     ssl-off\t\t [*app_name, *app_id]\n"
 }
 
 # Function for a servers help info
@@ -570,6 +609,16 @@ function rcdk_help_servers {
   "\n     create\t\t [*srv_name, *srv_ip, provider]" \
   "\n     delete\t\t [*srv_id]" \
   "\n     list\t\t [*page_number || *search_name]\n"
+}
+
+# Function for a services help info
+function rcdk_help_services {
+  echo -e "\nusage: rcdk services <command> [<args>]\n"\
+  "\nCommands\n" \
+  "\n     list\t\t list of all server's services" \
+  "\n     [action]\t\t perform the action for the service\n\t\t\t the action will be one of these: start,stop,restart,reload" \
+  "\nArguments\n" \
+  "\n     [action]\t\t perform the action for the service\n\t\t\t the action will be one of these: start,stop,restart,reload"
 }
 
 # Function for a db users help info
@@ -652,6 +701,16 @@ function rcdk_servers {
   esac
 }
 
+# Namespace function for services
+function rcdk_services {
+  actions=(start stop restart reload)
+  case "$1" in
+    "list") rcdk_services_get "${@:2}";;
+    "$actions") rcdk_services_action "${@:2}";;
+    *) rcdk_help_services;;
+  esac
+}
+
 # Namespace function for system users
 function rcdk_sysusers {
   case "$1" in
@@ -699,6 +758,7 @@ function rcdk {
     "sysusers") rcdk_sysusers "${@:2}";;
     "apps") rcdk_apps "${@:2}";;
     "servers") rcdk_servers "${@:2}";;
+    "services") rcdk_services "${@:2}";;
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
