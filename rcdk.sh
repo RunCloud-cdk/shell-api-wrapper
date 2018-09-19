@@ -369,12 +369,15 @@ function rcdk_ssl_table {
 # Example: rcdk apps ssl-info web_app_id
 function rcdk_ssl_info {
   rcdk_args_check 1 "$@"
-  local response=`rcdk_request "servers/$server_id/webapps/$1/ssl" "GET"`
+  local app_id=$1
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/ssl" "GET"`
   rcdk_ssl_table "$response"
 }
 
 # Install ssl for the web application
+# Example: rcdk apps ssl-on web_app_id
 function rcdk_ssl_on {
+  local app_id=$1
   read -ep "Select an ssl provider. Leave blank for LetsEncrypt: " provider
   local data="{\"provider\":\"$provider\",\"enableHttp\":\true,\"enableHsts\":false"
   if [[ $providier = '' ]]
@@ -412,6 +415,36 @@ function rcdk_ssl_off {
   local ssl_id=$2
   local response=`rcdk_request "servers/$server_id/webapps/$app_id/ssl/$ssl_id" "DELETE"`
   rcdk_ssl_table "$response"
+}
+
+# Get domains list of application
+# Example: rcdk dns list $web_app_id
+function rcdk_dns_get {
+  rcdk_args_check 1 "$@"
+  local app_id=$1
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname" "GET"`
+  echo "$response"| jq -r '["DOMAIN_ID","DOMAIN_NAME"], ["---------","-----------"], (.data[] | [.id, .name]) | @tsv'
+}
+
+# Get domains list of application
+# Example: rcdk dns list $web_app_id
+function rcdk_dns_add {
+  rcdk_args_check 2 "$@"
+  local app_id=$1
+  local domain_name=$2
+  local data="{\"domainName\":\"$domain_name\"}"
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname" "POST" $data`
+  rcdk_parse "$response"
+}
+
+# Get domains list of application
+# Example: rcdk dns elete web_app_id $domain_id
+function rcdk_dns_delete {
+  rcdk_args_check 2 "$@"
+  local app_id=$1
+  local domain_id=$2
+  local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname/$domain_id" "DELETE"`
+  rcdk_parse "$response"
 }
 
 # Make a readable table from response data (Internal)
@@ -471,8 +504,8 @@ function rcdk_servers_delete {
 # Example: rcdk services list
 function rcdk_services_get {
   local response=`rcdk_request "servers/$server_id/services" "GET"`
-   echo -e "$response" | jq -r '["SERVICE ","RUNNING  ","VERSION"],
-   ["----------------------------------------------"],
+   echo -e "$response" | jq -r '["SERVICE_NAME ","RUNNING  ","VERSION"],
+   ["------------","-------","----------------------"],
     (.data[] | [.realName, .Running, .Version]) | @tsv'
 }
 
@@ -583,19 +616,39 @@ function rcdk_help_apps {
   "\nCommands\n" \
   "\n     create\t\t create a new web application" \
   "\n     delete\t\t delete exists web application" \
-  "\n     list\t\t view one page of web application list or search them by chars" \
+  "\n     list\t\t view one page of web application list or search them by chars\n" \
+  "\nArguments\n" \
+  "\n     create\t\t this function asks you for all the arguments" \
+  "\n     delete\t\t [*app_name, *app_id]" \
+  "\n     list\t\t [*page_number || *search_name]\n"
+}
+
+# Function for a ssl help info
+function rcdk_help_ssl {
+  echo -e "\nusage: rcdk ssl <command> [<args>]\n"\
+  "\nCommands\n" \
   "\n     ssl-info\t\t show application ssl credentials" \
   "\n     ssl-on\t\t install ssl for the application" \
   "\n     ssl-update\t\t update ssl for the application" \
   "\n     ssl-off\t\t uninstall ssl for the application\n" \
   "\nArguments\n" \
-  "\n     create\t\t this function asks you for all the arguments" \
-  "\n     delete\t\t [*app_name, *app_id]" \
-  "\n     list\t\t [*page_number || *search_name]" \
   "\n     ssl-info\t\t [*web_app_id]" \
   "\n     ssl-on\t\t this function asks you for all the arguments" \
   "\n     ssl-update\t\t [*web_app_id, *ssl_id]" \
   "\n     ssl-off\t\t [*app_name, *app_id]\n"
+}
+
+# Function for a dns help info
+function rcdk_help_dns {
+  echo -e "\nusage: rcdk dns <command> [<args>]\n"\
+  "\nCommands\n" \
+  "\n     list\t\t show application ssl credentials" \
+  "\n     add\t\t install ssl for the application" \
+  "\n     delete\t\t update ssl for the application\n" \
+  "\nArguments\n" \
+  "\n     list\t\t [*web_app_id]" \
+  "\n     add\t\t [*web_app_id, *domain_id]" \
+  "\n     delete\t\t [*domain_id]\n"
 }
 
 # Function for a servers help info
@@ -728,11 +781,28 @@ function rcdk_apps {
     "create") rcdk_apps_create "${@:2}";;
     "delete") rcdk_apps_delete "${@:2}";;
     "list") rcdk_apps_get "${@:2}";;
-    "ssl-info") rcdk_ssl_info "${@:2}";;
-    "sll-on") rcdk_ssl_on "${@:2}";;
-    "sll-update") rcdk_ssl_update "${@:2}";;
-    "sll-off") rcdk_ssl_off "${@:2}";;
     *) rcdk_help_apps;;
+  esac
+}
+
+# Namespace function for ssl
+function rcdk_ssl {
+  case "$1" in
+    "info") rcdk_ssl_info "${@:2}";;
+    "on") rcdk_ssl_on "${@:2}";;
+    "update") rcdk_ssl_update "${@:2}";;
+    "off") rcdk_ssl_off "${@:2}";;
+    *) rcdk_help_ssl;;
+  esac
+}
+
+# Namespace function for domain names
+function rcdk_dns {
+  case "$1" in
+    "list") rcdk_dns_get "${@:2}";;
+    "add") rcdk_dns_add "${@:2}";;
+    "delete") rcdk_dns_delete "${@:2}";;
+    *) rcdk_help_dns;;
   esac
 }
 
@@ -757,6 +827,8 @@ function rcdk {
     "init") rcdk_init "${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
     "apps") rcdk_apps "${@:2}";;
+    "ssl") rcdk_ssl "${@:2}";;
+    "dns") rcdk_dns "${@:2}";;
     "servers") rcdk_servers "${@:2}";;
     "services") rcdk_services "${@:2}";;
     "dbs") rcdk_dbs "${@:2}";;
