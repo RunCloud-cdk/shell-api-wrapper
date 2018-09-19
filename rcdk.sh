@@ -511,19 +511,21 @@ function rcdk_services_get {
 }
 
 # The action will be one of these: start,stop,restart,reload
-# Example: rcdk services action start nginx-rc
+# Example: rcdk services action start nginx-rc Nginx
 function rcdk_services_action {
-  rcdk_args_check 3 "$@"
-  local cur=${COMP_WORDS[COMP_CWORD-1]}
-  local action=''
-  local real_name=$1
-  local name=$2
-  case "$cur" in
-    "start") action+='start';;
-    "stop") action+='stop';;
-    "restart") action+='restart';;
-    "reload") action+='reload';;
-    *) echo -e "This action does'nt exists!";;
+  rcdk_args_check 2 "$@"
+  local action=$1
+  local real_name=$2
+  local name=''
+  case $real_name in
+    "nginx-rc") name+='NGiNX';;
+    "apache2-rc") name+='HTTPD\/Apache';;
+    "mysql") name+='MariaDB';;
+    "supervisord") name+='Supervisord';;
+    "redis-server") name+='Redis';;
+    "memcached") name+='Memcached';;
+    "beanstalkd") name+='Beanstalkd';;
+    *) echo -e "This service does'nt exists!";;
   esac
 
   local data="{\"action\":\"$action\",\"realName\":\"$real_name\",\"name\":\"$name\"}"
@@ -581,6 +583,11 @@ function rcdk_ssh_delete {
   local response=`rcdk_request "servers/$server_id/sshcredentials/$key_id" "DELETE" "{\"label\":\"$label\"}"`
   rcdk_parse "$response"
 }
+
+# A function of generating help info
+#function rcdk_help_gen {
+#
+#}
 
 # Namespace function for help info
 function rcdk_help {
@@ -762,10 +769,10 @@ function rcdk_servers {
 function rcdk_services {
   case "$1" in
     "list") rcdk_services_get "${@:2}";;
-    "start") rcdk_services_action "${@:2}";;
-    "stop") rcdk_services_action "${@:2}";;
-    "restart") rcdk_services_action "${@:2}";;
-    "reload") rcdk_services_action "${@:2}";;
+    "start") rcdk_services_action start "${@:2}";;
+    "stop") rcdk_services_action stop "${@:2}";;
+    "restart") rcdk_services_action restart "${@:2}";;
+    "reload") rcdk_services_action reload "${@:2}";;
     *) rcdk_help_services;;
   esac
 }
