@@ -7,8 +7,9 @@
 # Stop script execution in case of error
 set -o errexit
 
-rcdk_name='Runcloud Shell API Wrapper'
-rcdk_version="1.0"
+# rcdk constants
+readonly RCDK_NAME='Runcloud Shell API Wrapper'
+readonly RCDK_VERSION="1.0"
 
 # add some color constants
 readonly NC="\033[0m"
@@ -583,13 +584,16 @@ function rcdk_ssh_delete {
 
 # Namespace function for help info
 function rcdk_help {
-  echo -e "\n$rcdk_name\n \nusage: rcdk <command> [<args>] [<options>]\n"\
+  echo -e "\n$RCDK_NAME\n \nusage: rcdk <command> [<args>] [<options>]\n"\
   "\nCommands\n" \
   "\n     ping\t\t check connection with API" \
   "\n     init\t\t select the server you want to work with" \
   "\n     sysusers\t\t work with system users" \
   "\n     servers\t\t work with servers" \
+  "\n     services\t\t work with web application services" \
   "\n     apps\t\t work with web applications" \
+  "\n     ssl\t\t work with ssl of web application\n" \
+  "\n     dns\t\t work with domains of web application\n" \
   "\n     dbs\t\t work with databases" \
   "\n     dbusers\t\t work with databases users" \
   "\n     ssh\t\t work with ssh keys\n" \
@@ -756,10 +760,12 @@ function rcdk_servers {
 
 # Namespace function for services
 function rcdk_services {
-  actions=(start stop restart reload)
   case "$1" in
     "list") rcdk_services_get "${@:2}";;
-    "$actions") rcdk_services_action "${@:2}";;
+    "start") rcdk_services_action "${@:2}";;
+    "stop") rcdk_services_action "${@:2}";;
+    "restart") rcdk_services_action "${@:2}";;
+    "reload") rcdk_services_action "${@:2}";;
     *) rcdk_help_services;;
   esac
 }
@@ -819,9 +825,9 @@ function rcdk_ssh {
 # Main function for everything
 function rcdk {
   case "$1" in
-    "-v") echo "Runcloud API Shell Wrapper  Ver $rcdk_version"
+    "-v") echo "Runcloud API Shell Wrapper  Ver $RCDK_VERSION"
       exit 0;;
-    "--version") echo "Runcloud API Shell Wrapper  Ver $rcdk_version"
+    "--version") echo "Runcloud API Shell Wrapper  Ver $RCDK_VERSION"
       exit 0;;
     "ping") rcdk_ping;;
     "init") rcdk_init "${@:2}";;
