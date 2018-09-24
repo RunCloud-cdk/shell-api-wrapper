@@ -3,7 +3,7 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
 
 ## ToDo
 - [ ] Main sections
-  - [x] Requirements
+  - [ ] Requirements
   - [ ] Authentication
   - [ ] Installation
   - [x] List of features
