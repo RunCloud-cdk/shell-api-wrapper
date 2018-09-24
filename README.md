@@ -10,8 +10,8 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
   - [ ] List of commands and arguments
 
 ## Requirements
-- **Curl**
-- **jq (version 1.5 or later)**
+- Curl
+- jq (version 1.5 or later)
 
 ## Installation
 Replace `API KEY` and `API SECRET KEY` to your credentials, then run the following commands:
@@ -28,7 +28,7 @@ Therefore it was decided that before you start working with the API it is better
 
 Run `rcdk init`. The program will show the list of servers and offer to choose one of them by entering `server id`.
 
-##Features
+## Features
 After the server has been selected, you can start working with most of the features from the API:
 
 ### System users
