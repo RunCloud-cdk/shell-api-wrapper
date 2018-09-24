@@ -18,8 +18,9 @@ readonly YELLOW="\033[0;33m"
 readonly GREEN="\033[0;32m"
 
 # Check if api creds have been set. If not, check if they're in the config file.
-if [[ ! "$api_key" || ! "$api_secret_key" ]]; then
-rcdk_config="api.conf"
+if [[ ! "$api_key" || ! "$api_secret_key" ]]
+then
+  rcdk_config="api.conf"
   if [ -e "$rcdk_config" ]; then
     . "$rcdk_config"
   elif [ -e "$HOME/$rcdk_config" ]; then
@@ -599,8 +600,8 @@ function rcdk_help {
   "\n     servers\t\t work with servers" \
   "\n     services\t\t work with web application services" \
   "\n     apps\t\t work with web applications" \
-  "\n     ssl\t\t work with ssl of web application\n" \
-  "\n     dns\t\t work with domains of web application\n" \
+  "\n     ssl\t\t work with ssl of web application" \
+  "\n     dns\t\t work with domains of web application" \
   "\n     dbs\t\t work with databases" \
   "\n     dbusers\t\t work with databases users" \
   "\n     ssh\t\t work with ssh keys\n" \
@@ -653,9 +654,9 @@ function rcdk_help_ssl {
 function rcdk_help_dns {
   echo -e "\nusage: rcdk dns <command> [<args>]\n"\
   "\nCommands\n" \
-  "\n     list\t\t show application ssl credentials" \
-  "\n     add\t\t install ssl for the application" \
-  "\n     delete\t\t update ssl for the application\n" \
+  "\n     list\t\t show list of domains for the web application" \
+  "\n     add\t\t add new domain name for the web application" \
+  "\n     delete\t\t domain name from the web application by id\n" \
   "\nArguments\n" \
   "\n     list\t\t [*web_app_id]" \
   "\n     add\t\t [*web_app_id, *domain_id]" \
