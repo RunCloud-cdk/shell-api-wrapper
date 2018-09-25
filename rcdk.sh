@@ -20,11 +20,13 @@ readonly GREEN="\033[0;32m"
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]
 then
-  rcdk_config="api.conf"
-  if [ -e "$rcdk_config" ]; then
+  rcdk_config="$HOME/rcdk.conf"
+  if [ -e "$rcdk_config" ]
+  then
     . "$rcdk_config"
-  elif [ -e "$HOME/$rcdk_config" ]; then
-    . "$HOME/$rcdk_config"
+  else
+    echo -e "${RED}Error: Config file is missing from $HOME/. Use 'rcdk config' for contiinue working with API"
+    exit 0
   fi
 fi
 
@@ -34,7 +36,7 @@ function rcdk_args_check {
   local a=("${@:2}")
   local c="$1"
   if [ "${#a[@]}" -lt "$c" ]; then
-    echo -e "${RED}Error: Missing required arguments. Use 'rcdk -h' command for help "
+    echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help "
     exit 1
   fi
 }
@@ -538,9 +540,8 @@ function rcdk_services_action {
 # Example: rcdk_init $server_id
 function rcdk_init {
   rcdk servers list 1; echo -e ""
-  local bashrc=".bashrc"
   read -ep "Enter id of the server you want to work with: " server_id
-  sed -i "s/server_id=.*/server_id=$server_id/" $bashrc
+  sed -i "s/server_id=.*/server_id=$server_id/" $rcdk_config
   echo -e "${GREEN}Successfully switched on $server_id server."
 }
 
@@ -838,6 +839,7 @@ function rcdk {
       exit 0;;
     "--version") echo "Runcloud API Shell Wrapper  Ver $RCDK_VERSION"
       exit 0;;
+    "help") rcdk_help;;
     "ping") rcdk_ping;;
     "init") rcdk_init "${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
@@ -849,7 +851,7 @@ function rcdk {
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
-    *) rcdk_help;;
+    *) echo -e "${YELLOW}WARNING: Command not found. Use 'rcdk help' command";;
   esac
 }
 
