@@ -538,8 +538,9 @@ function rcdk_services_action {
 # Example: rcdk_init $server_id
 function rcdk_init {
   rcdk servers list 1; echo -e ""
+  local bashrc=".bashrc"
   read -ep "Enter id of the server you want to work with: " server_id
-  sed -i "s/server_id=.*/server_id=$server_id/" $rcdk_config
+  sed -i "s/server_id=.*/server_id=$server_id/" $bashrc
   echo -e "${GREEN}Successfully switched on $server_id server."
 }
 
