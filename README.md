@@ -29,7 +29,7 @@ Therefore it was decided that before you start working with the API it is better
 
 Run `rcdk init`. The program will show the list of servers and offer to choose one of them by entering `server id`.
 
-##Features
+## Features
 After the server has been selected, you can start working with most of the features from the API:
 
 ### System users
