@@ -6,7 +6,7 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
   - [x] Requirements
   - [x] Installation
   - [x] Initialization
-  - [ ] Completion
+  - [x] Completion
   - [x] List of features
   - [ ] List of commands and arguments
 
@@ -28,6 +28,14 @@ The Runcloud API requires you to pass the `server_id` on each request (in additi
 Therefore it was decided that before you start working with the API it is better to initialize work with a specific server.
 
 Run `rcdk init`. The program will show the list of servers and offer to choose one of them by entering `server id`.
+
+## Bash completion
+For the activate completion try next command: 
+```bash
+curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && cp rcdk /etc/bash_completion.d/
+```
+This command actual for Ubuntu/Debian users with bash interpreter.\
+See [GNU documentation](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html) for more info about bash completion.
 
 ## Features
 After the server has been selected, you can start working with most of the features from the API:

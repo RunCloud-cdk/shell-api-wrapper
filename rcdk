@@ -1,0 +1,53 @@
+_rcdk()
+{
+  local cur prev opts
+  # Current argument
+  cur=${COMP_WORDS[COMP_CWORD]}
+  # Previous argument
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+  # Options
+  opts="help config ping init sysusers apps ssl dns servers services dbs dbusers ssh"
+
+  case "$prev" in
+    sysusers)
+      COMPREPLY=( $(compgen -W "create delete list passwd" -- $cur) )	
+      return 0
+      ;;
+    apps)
+      COMPREPLY=( $(compgen -W "create delete list ssl-info ssl-on ssl-update ssl-off dns-list dns-add dns-delete" -- $cur) )
+      return 0
+      ;;
+    ssl)
+      COMPREPLY=( $(compgen -W "info on update off" -- $cur) )
+      return 0
+      ;;
+    dns)
+      COMPREPLY=( $(compgen -W " list add delete" -- $cur) )
+      return 0
+      ;;
+    servers)
+      COMPREPLY=( $(compgen -W "create delete list" -- $cur) )
+      return 0
+      ;;
+    services)
+      COMPREPLY=( $(compgen -W "list start stop restart reload" -- $cur) )
+      return 0
+      ;;
+    dbs)
+      COMPREPLY=( $(compgen -W "create delete list" -- $cur) )
+      return 0
+      ;;
+    dbusers)
+      COMPREPLY=( $(compgen -W "create delete list attach revoke passwd" -- $cur) )
+      return 0
+      ;;
+    ssh)
+      COMPREPLY=( $(compgen -W "add delete list" -- $cur) )
+      return 0
+      ;;
+  esac
+
+  COMPREPLY=( $(compgen -W "$opts" -- $cur) )
+  return 0
+}
+complete -F _rcdk rcdk
