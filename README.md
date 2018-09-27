@@ -4,9 +4,9 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
 ## ToDo
 - [ ] Main sections
   - [x] Requirements
-  - [ ] Authentication
   - [x] Installation
   - [x] Initialization
+  - [ ] Completion
   - [x] List of features
   - [ ] List of commands and arguments
 
@@ -18,10 +18,10 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
 Replace `API KEY` and `API SECRET KEY` to your credentials, then run the following commands:
 ```bash
 $ cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk && chmod +x rcdk && sudo cp rcdk /usr/local/bin/rcdk
-$ ak="API KEY"; ask="API SECRET KEY"; printf 'export api_key="'$ak'"\nexport api_secret_key="'$ask'"\nexport server_id=' >> ~/rcdk.conf
+$ ak="API KEY"; ask="API SECRET KEY"; printf 'api_key="'$ak'"\napi_secret_key="'$ask'"\nserver_id=' >> ~/rcdk.conf
 ```
-Empty `server_id` in a second command will needed for the next step.\
-Next you can run `rcdk ping` for a testing connection with API.
+The second command creates a configuration file named ' rcdk.conf ' with API keys in the user's home directory. Empty `server_id` will needed for the next step.\
+Now you can run `rcdk ping` to test the API connection.
 
 ## Initialization
 The Runcloud API requires you to pass the `server_id` on each request (in addition to the `ping` command and some of the `servers` commands).

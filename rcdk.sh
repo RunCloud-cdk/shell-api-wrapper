@@ -7,26 +7,38 @@
 # Stop script execution in case of error
 set -o errexit
 
-# rcdk constants
+# RCDK constants
 readonly RCDK_NAME='Runcloud Shell API Wrapper'
 readonly RCDK_VERSION="1.0"
+readonly RCDK_CONFIG="$HOME/rcdk.conf"
 
-# add some color constants
+# Color constants
 readonly NC="\033[0m"
 readonly RED="\033[0;31m"
 readonly YELLOW="\033[0;33m"
 readonly GREEN="\033[0;32m"
 
+# Configurating a connection with API
+function rcdk_config {
+  read -sp "Enter api key: " api_key
+  read -sp "Enter api secret key: " api_secret_key
+  if [ -e "$RCDK_CONFIG" ]
+  then
+    sed -i "s/api__key=.*/api__key=$api_key/" $RCDK_CONFIG
+    sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $RCDK_CONFIG
+  else
+    printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' >> ~/rcdk.conf
+  fi
+}
+
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]
 then
-  rcdk_config="$HOME/rcdk.conf"
-  if [ -e "$rcdk_config" ]
+  if [ -e "$RCDK_CONFIG" ]
   then
-    . "$rcdk_config"
+    . "$RCDK_CONFIG"
   else
-    echo -e "${RED}Error: Config file is missing from $HOME/. Use 'rcdk config' for contiinue working with API"
-    exit 0
+    rcdk_config
   fi
 fi
 
@@ -541,7 +553,7 @@ function rcdk_services_action {
 function rcdk_init {
   rcdk servers list 1; echo -e ""
   read -ep "Enter id of the server you want to work with: " server_id
-  sed -i "s/server_id=.*/server_id=$server_id/" $rcdk_config
+  sed -i "s/server_id=.*/server_id=$server_id/" $RCDK_CONFIG
   echo -e "${GREEN}Successfully switched on $server_id server."
 }
 
@@ -597,6 +609,7 @@ function rcdk_help {
   echo -e "\n$RCDK_NAME\n \nusage: rcdk <command> [<args>] [<options>]\n"\
   "\nCommands\n" \
   "\n     ping\t\t check connection with API" \
+  "\n     config\t\t configurating connection with API" \
   "\n     init\t\t select the server you want to work with" \
   "\n     sysusers\t\t work with system users" \
   "\n     servers\t\t work with servers" \
@@ -841,6 +854,7 @@ function rcdk {
       exit 0;;
     "help") rcdk_help;;
     "ping") rcdk_ping;;
+    "config") rcdk_config;;
     "init") rcdk_init "${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
     "apps") rcdk_apps "${@:2}";;
