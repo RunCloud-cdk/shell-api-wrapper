@@ -20,14 +20,17 @@ readonly GREEN="\033[0;32m"
 
 # Configurating a connection with API
 function rcdk_config {
-  read -sp "Enter api key: " api_key
-  read -sp "Enter api secret key: " api_secret_key
+  echo -e "${YELLOW}The keys will not be displayed in the terminal! Please enter the correct keys."
+  read -sp "Enter api key: " api_key; echo ""
+  read -sp "Enter api secret key: " api_secret_key; echo ""
   if [ -e "$RCDK_CONFIG" ]
   then
-    sed -i "s/api__key=.*/api__key=$api_key/" $RCDK_CONFIG
+    sed -i "s/api_key=.*/api_key=$api_key/" $RCDK_CONFIG
     sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $RCDK_CONFIG
+    echo -e "${GREEN}Configuration file was successfully updated!"
   else
     printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' >> ~/rcdk.conf
+    echo -e "${GREEN}Configuration file was successfully created!"
   fi
 }
 
@@ -48,7 +51,7 @@ function rcdk_args_check {
   local a=("${@:2}")
   local c="$1"
   if [ "${#a[@]}" -lt "$c" ]; then
-    echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help "
+    echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help"
     exit 1
   fi
 }
@@ -317,7 +320,7 @@ function rcdk_apps_get {
 
 # Create new runcloud web application
 function rcdk_apps_create {
-  echo -e "Create web application step by step\n"
+  echo -e "Create web application step by step"
   read -ep "Enter a web application name: " app_name
   read -ep "Enter a domain name for web application: " domain_name
   read -ep "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
