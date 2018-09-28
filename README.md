@@ -32,7 +32,7 @@ Run `rcdk init`. The program will show the list of servers and offer to choose o
 ## Bash completion
 For the activate completion try next command: 
 ```bash
-curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && cp rcdk /etc/bash_completion.d/
+wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo cp rcdk /etc/bash_completion.d/
 ```
 This command actual for Ubuntu/Debian users with bash interpreter.\
 See [GNU documentation](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html) for more info about bash completion.
