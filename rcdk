@@ -26,7 +26,7 @@ _rcdk()
       return 0
       ;;
     servers)
-      COMPREPLY=( $(compgen -W "create delete list" -- $cur) )
+      COMPREPLY=( $(compgen -W "add delete list" -- $cur) )
       return 0
       ;;
     services)

@@ -206,8 +206,8 @@ function rcdk_dbusers_delete {
 function rcdk_dbusers_attach {
   rcdk_args_check 2 "$@"
   local db_user_name=$1
-  local db_user_id=$2
-  local response=`rcdk_request "servers/$server_id/databases/$db_user_id/attachuser" "POST" "{\"databaseUser\":\"$db_user_name\"}"`
+  local db_id=$2
+  local response=`rcdk_request "servers/$server_id/databases/$db_id/attachuser" "POST" "{\"databaseUser\":\"$db_user_name\"}"`
   rcdk_parse "$response"
 }
 
@@ -216,8 +216,8 @@ function rcdk_dbusers_attach {
 function rcdk_dbusers_revoke {
   rcdk_args_check 2 "$@"
   local db_user_name=$1
-  local db_user_id=$2
-  local response=`rcdk_request "servers/$server_id/databases/$db_user_id/attachuser" "DELETE" "{\"databaseUser\":\"$db_user_name\"}"`
+  local db_id=$2
+  local response=`rcdk_request "servers/$server_id/databases/$db_id/attachuser" "DELETE" "{\"databaseUser\":\"$db_user_name\"}"`
   rcdk_parse "$response"
 }
 
@@ -244,7 +244,7 @@ function rcdk_sysusers_table {
 }
 
 # Gets a list of all system users or searching info about current system user through the name
-# Example1: rcdk_sysusers $page_number, $search_name
+# Example1: rcdk_sysusers list $page_number, $search_name
 function rcdk_sysusers_get {
   rcdk_args_check 1 "$@"
   if [ -z "${1//[0-9]/}" ] # if arg is number
@@ -385,7 +385,7 @@ function rcdk_ssl_table {
 }
 
 # Get SSL info of application
-# Example: rcdk apps ssl-info web_app_id
+# Example: rcdk apps ssl info web_app_id
 function rcdk_ssl_info {
   rcdk_args_check 1 "$@"
   local app_id=$1
@@ -394,8 +394,9 @@ function rcdk_ssl_info {
 }
 
 # Install ssl for the web application
-# Example: rcdk apps ssl-on web_app_id
+# Example: rcdk apps ssl on web_app_id
 function rcdk_ssl_on {
+  rcdk_args_check 1 "$@"
   local app_id=$1
   read -ep "Select an ssl provider. Leave blank for LetsEncrypt: " provider
   local data="{\"provider\":\"$provider\",\"enableHttp\":\true,\"enableHsts\":false"
@@ -414,7 +415,7 @@ function rcdk_ssl_on {
 }
 
 # Update ssl for the web application
-# Example: rcdk apps ssl-update $web_app_id $ssl_id
+# Example: rcdk apps ssl update $web_app_id $ssl_id
 function rcdk_ssl_update {
   rcdk_args_check 2 "$@"
   local ssl_info=rcdk_ssl_info $app_id
@@ -427,7 +428,7 @@ function rcdk_ssl_update {
 }
 
 # Uninstall ssl for the web application
-# Example: rcdk apps ssl-off $web_app_id $ssl_id
+# Example: rcdk apps ssl off $web_app_id $ssl_id
 function rcdk_ssl_off {
   rcdk_args_check 2 "$@"
   local app_id=$1
@@ -445,8 +446,8 @@ function rcdk_dns_get {
   echo "$response"| jq -r '["DOMAIN_ID","DOMAIN_NAME"], ["---------","-----------"], (.data[] | [.id, .name]) | @tsv'
 }
 
-# Get domains list of application
-# Example: rcdk dns list $web_app_id
+# Add new domain name for the application
+# Example: rcdk dns add $web_app_id $domain_name
 function rcdk_dns_add {
   rcdk_args_check 2 "$@"
   local app_id=$1
@@ -490,7 +491,7 @@ function rcdk_servers_get {
 
 # Create new runcloud server
 # Example: rcdk servers create $srv_name $srv_ip $provider
-function rcdk_servers_create {
+function rcdk_servers_add {
   rcdk_args_check 2 "$@"
   local data="{\"serverName\":\"$1\",\"ipAddress\":\"$2\""
   if [ -n $3 ]
@@ -523,13 +524,13 @@ function rcdk_servers_delete {
 # Example: rcdk services list
 function rcdk_services_get {
   local response=`rcdk_request "servers/$server_id/services" "GET"`
-   echo -e "$response" | jq -r '["SERVICE_NAME ","RUNNING  ","VERSION"],
+  echo -e "$response" | jq -r '["SERVICE_NAME ","RUNNING  ","VERSION"],
    ["------------","-------","----------------------"],
     (.data[] | [.realName, .Running, .Version]) | @tsv'
 }
 
 # The action will be one of these: start,stop,restart,reload
-# Example: rcdk services action start nginx-rc Nginx
+# Example: rcdk services start nginx-rc
 function rcdk_services_action {
   rcdk_args_check 2 "$@"
   local action=$1
@@ -554,7 +555,7 @@ function rcdk_services_action {
 # Init work with rcdk by server_id
 # Example: rcdk_init $server_id
 function rcdk_init {
-  rcdk servers list 1; echo -e ""
+  rcdk servers list 1; echo ""
   read -ep "Enter id of the server you want to work with: " server_id
   sed -i "s/server_id=.*/server_id=$server_id/" $RCDK_CONFIG
   echo -e "${GREEN}Successfully switched on $server_id server."
@@ -727,8 +728,8 @@ function rcdk_help_dbusers {
 function rcdk_help_sysusers {
   echo -e "\nusage: rcdk sysusers <command> [<args>]\n"\
   "\nCommands\n" \
-  "\n     create\t\t create a new database" \
-  "\n     delete\t\t delete exists database" \
+  "\n     create\t\t create a new system user" \
+  "\n     delete\t\t delete exists system user" \
   "\n     list\t\t view one page of system users list or search users by chars" \
   "\n     passwd\t\t change password for the system user\n" \
   "\nArguments\n" \
@@ -777,7 +778,7 @@ function rcdk_dbusers {
 # Namespace function for servers
 function rcdk_servers {
   case "$1" in
-    "create") rcdk_servers_create "${@:2}";;
+    "add") rcdk_servers_add "${@:2}";;
     "delete") rcdk_servers_delete "${@:2}";;
     "list") rcdk_servers_get "${@:2}";;
     *) rcdk_help_servers;;
