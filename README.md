@@ -282,7 +282,7 @@ rcdk dns delete $app_id $domain_id
 | app_id | ID of the web application. | yes |
 | domain_id | ID of the domain name. | yes |
 
-##SSL certificates
+## SSL certificates
 ### Show info about SSL sertificate
 ```bash
 rcdk ssl info $id
@@ -314,7 +314,7 @@ rcdk ssl off $app_id $ssl_id
 | app_id | ID of the web application. | yes |
 | ssl_id | ID of the ssl sertficate for the web application. | yes |
 
-##SSH keys
+## SSH keys
 ### Add SSH public key to the system user of selected server
 ```bash
 rcdk  ssh add $label $name $pub_key
