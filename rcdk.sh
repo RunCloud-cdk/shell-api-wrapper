@@ -334,14 +334,14 @@ function rcdk_apps_create {
   echo -e "Create web application step by step"
   read -ep "Enter a web application name: " app_name
   read -ep "Enter a domain name for web application: " domain_name
-  read -ep "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
+  read -ep "Choose owner of this web application ( user runcloud by default ): " user_name
   read -ep "Enter a public path ( leave empty for the root path ): " public_path
   read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
   read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
   read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
-  if [[ $timezone = '' ]]
+  if [[ $user_name = '' ]]
   then
-    timezone+='Asia/Jerusalem'
+    user_name+='runcloud'
   fi
   if [[ $php_version = '' ]]
   then
@@ -350,6 +350,10 @@ function rcdk_apps_create {
   if [[ $stack = '' ]]
   then
     stack+='nativenginx'
+  fi
+  if [[ $timezone = '' ]]
+  then
+    timezone+='Asia/Jerusalem'
   fi
   local data=""
     data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
