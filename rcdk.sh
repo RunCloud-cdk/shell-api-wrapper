@@ -325,12 +325,20 @@ function rcdk_apps_create {
   read -ep "Enter a domain name for web application: " domain_name
   read -ep "Choose owner of this web application ( if dosen't exists, will be created ): " user_name
   read -ep "Enter a public path ( leave empty for the root path ): " public_path
-  read -ep "Choose PHP version ( write 'php70rc', 'php71rc' or 'php72rc' ): " php_version
-  read -ep "Choose a web stack ( write 'hybrid' or 'nativenginx' ): " stack
+  read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
+  read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
   read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
   if [[ $timezone = '' ]]
   then
     timezone+='Asia/Jerusalem'
+  fi
+  if [[ $php_version = '' ]]
+  then
+    php_version+='php72rc'
+  fi
+  if [[ $stack = '' ]]
+  then
+    stack+='nativenginx'
   fi
   local data=""
     data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
@@ -350,22 +358,21 @@ function rcdk_apps_create {
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
-
 }
 
 # Delete exists web application from runcloud
 # Example: rcdk apps delete $web_app_name $web_app_id
 function rcdk_apps_delete {
   rcdk_args_check 2 "$@"
+  local app_name=$1
+  local app_id=$2
   read -p "Are you sure want to delete this application? Say 'y' or 'n': " accept
   if [ "$accept" == "y" ]
   then
-    local app_name=$1
-    local app_id=$2
     local response=`rcdk_request "servers/$server_id/webapps/$app_id" "DELETE" "{\"webApplicationName\":\"$app_name\"}"`
     rcdk_parse "$response"
   else
-    echo "Deleting application $1 was canceled!"
+    echo "Deleting application $app_name was canceled!"
   fi
 }
 
