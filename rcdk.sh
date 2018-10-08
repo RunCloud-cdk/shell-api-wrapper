@@ -34,6 +34,17 @@ function rcdk_config {
   fi
 }
 
+# Updating rcdk from Github
+function rcdk_update {
+  cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk
+  chmod +x rcdk && sudo cp -u rcdk /usr/local/bin/rcdk
+  rm rcdk
+  echo -e "${GREEN}Updating Shell wrapper done"
+  wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo cp rcdk /etc/bash_completion.d/
+  rm rcdk
+  echo -e "${GREEN}Updating Bash completion done"
+}
+
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]
 then
@@ -867,6 +878,7 @@ function rcdk {
     "ping") rcdk_ping;;
     "config") rcdk_config;;
     "init") rcdk_init "${@:2}";;
+    "update") rcdk_update;;
     "sysusers") rcdk_sysusers "${@:2}";;
     "apps") rcdk_apps "${@:2}";;
     "ssl") rcdk_ssl "${@:2}";;
