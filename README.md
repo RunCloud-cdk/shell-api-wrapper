@@ -47,8 +47,8 @@ After the server has been selected, you can start working with most of the featu
 - [Change passwd for a system user](https://github.com/RunCloud-cdk/shell-api-wrapper#change-passwd-for-a-system-user)
 
 ### Servers
-- [Add new server to Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#add-new-server-to-Runcloud)
-- [Delete exists server from Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#delete-exists-server-from-Runcloud)
+- [Add new server to Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#add-new-server-to-runcloud)
+- [Delete exists server from Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#delete-exists-server-from-runcloud)
 - [List of all your servers](https://github.com/RunCloud-cdk/shell-api-wrapper#list-of-all-your-servers)
 
 ### Services
@@ -106,7 +106,7 @@ rcdk sysusers delete $name $id
 |:----:|:----:|:----------:|
 | name | Name of the system user. | yes |
 | id | ID of the system user. | yes |
-### Get list of system users
+### Get list of all system users
 ```bash
 rcdk sysusers list $string || rcdk sysusers list $number
 ```
