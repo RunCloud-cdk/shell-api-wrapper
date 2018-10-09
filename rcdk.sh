@@ -131,6 +131,15 @@ function rcdk_dbs_table {
   echo $1 | jq -r '["DATABASE_ID","DATABASE_NAME"], ["------------","--------------"], (.data[] | [.id, .name]) | @tsv'
 }
 
+# Get the id of the database by name (Internal)
+# Example: rcdk_dbusers_get_id $name
+function rcdk_dbs_get_id {
+  rcdk_args_check 1 "$@"
+  local src_name=$1
+  local response=`rcdk_request "servers/$server_id/databases?page=1&name=$src_name" "GET"`
+  echo $response | jq -r .data[].id
+}
+
 # Gets a list of all databases or searching info about current database through the name
 # Example1: rcdk_dbs $page_number, $search_name
 function rcdk_dbs_get {
@@ -312,6 +321,15 @@ function rcdk_sysusers_passwd {
 # Example: rcdk_apps_table "$response"
 function rcdk_apps_table {
   echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["----------","-------"], (.data[] | [.id, .name]) | @tsv'
+}
+
+# Get the id of the web application by name (Internal)
+# Example: rcdk_apps_get_id $name
+function rcdk_apps_get_id {
+  rcdk_args_check 1 "$@"
+  local src_name=$1
+  local response=`rcdk_request "servers/$server_id/webapps?page=1&search=$src_name" "GET"`
+  echo $response | jq -r .data[].id
 }
 
 # Gets a list of all servers or searching info about current server through the name
@@ -631,6 +649,23 @@ function rcdk_ssh_delete {
   rcdk_parse "$response"
 }
 
+# Function to create a full web application with a database, ssl, etc.
+function rcdk_bundle {
+  read -ep "Type name of the database user: " db_user
+  read -sp "Type the password for the database user ( by default, a 32-character password will be generated ): " db_user_pass; echo ""
+  read -ep "Type name of the database ( by default such as database username ): " db_name
+  read -ep "Type database collation: " db_col
+  if [[ $db_name == '' ]]
+  then
+    db_name+=$db_user
+  fi
+  rcdk_dbusers_create $db_user $db_user_pass
+  rcdk_dbs_create $db_user $db_col
+  local db_id=`rcdk_dbs_get_id $db_name`
+  rcdk_dbusers_attach $db_user $db_id
+  rcdk_apps_create
+}
+
 # A function of generating help info
 #function rcdk_help_gen {
 #
@@ -643,6 +678,7 @@ function rcdk_help {
   "\n     ping\t\t check connection with API" \
   "\n     config\t\t configurating connection with API" \
   "\n     init\t\t select the server you want to work with" \
+  "\n     bundle\t\t create a full web application with a database, ssl, etc" \
   "\n     update\t\t update rcdk to the last version from github" \
   "\n     sysusers\t\t work with system users" \
   "\n     servers\t\t work with servers" \
@@ -890,6 +926,7 @@ function rcdk {
     "config") rcdk_config;;
     "init") rcdk_init "${@:2}";;
     "update") rcdk_update;;
+    "bundle") rcdk_bundle "${@:2}";;
     "sysusers") rcdk_sysusers "${@:2}";;
     "apps") rcdk_apps "${@:2}";;
     "ssl") rcdk_ssl "${@:2}";;
