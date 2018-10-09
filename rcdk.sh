@@ -332,8 +332,14 @@ function rcdk_apps_get {
 # Create new runcloud web application
 function rcdk_apps_create {
   echo -e "Create web application step by step"
-  read -ep "Enter a web application name: " app_name
-  read -ep "Enter a domain name for web application: " domain_name
+  while [[ $app_name = '' ]]
+  do
+    read -ep "Enter a web application name: " app_name
+  done
+  while [[ $domain_name = '' ]]
+  do
+    read -ep "Enter a domain name for web application: " domain_name
+  done
   read -ep "Choose owner of this web application ( user runcloud by default ): " user_name
   read -ep "Enter a public path ( leave empty for the root path ): " public_path
   read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
