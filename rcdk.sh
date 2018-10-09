@@ -643,6 +643,7 @@ function rcdk_help {
   "\n     ping\t\t check connection with API" \
   "\n     config\t\t configurating connection with API" \
   "\n     init\t\t select the server you want to work with" \
+  "\n     update\t\t update rcdk to the last version from github" \
   "\n     sysusers\t\t work with system users" \
   "\n     servers\t\t work with servers" \
   "\n     services\t\t work with web application services" \
@@ -686,15 +687,15 @@ function rcdk_help_apps {
 function rcdk_help_ssl {
   echo -e "\nusage: rcdk ssl <command> [<args>]\n"\
   "\nCommands\n" \
-  "\n     ssl-info\t\t show application ssl credentials" \
-  "\n     ssl-on\t\t install ssl for the application" \
-  "\n     ssl-update\t\t update ssl for the application" \
-  "\n     ssl-off\t\t uninstall ssl for the application\n" \
+  "\n     info\t\t show application ssl credentials" \
+  "\n     on\t\t\t install ssl for the application" \
+  "\n     update\t\t update ssl for the application" \
+  "\n     off\t\t uninstall ssl for the application\n" \
   "\nArguments\n" \
-  "\n     ssl-info\t\t [*web_app_id]" \
-  "\n     ssl-on\t\t this function asks you for all the arguments" \
-  "\n     ssl-update\t\t [*web_app_id, *ssl_id]" \
-  "\n     ssl-off\t\t [*app_name, *app_id]\n"
+  "\n     info\t\t [*web_app_id]" \
+  "\n     on\t\t\t [*web_app_id]" \
+  "\n     update\t\t [*web_app_id, *ssl_id]" \
+  "\n     off\t\t [*web_app_id, *ssl_id]\n"
 }
 
 # Function for a dns help info
@@ -703,11 +704,11 @@ function rcdk_help_dns {
   "\nCommands\n" \
   "\n     list\t\t show list of domains for the web application" \
   "\n     add\t\t add new domain name for the web application" \
-  "\n     delete\t\t domain name from the web application by id\n" \
+  "\n     delete\t\t delete domain name from the web application by id\n" \
   "\nArguments\n" \
   "\n     list\t\t [*web_app_id]" \
-  "\n     add\t\t [*web_app_id, *domain_id]" \
-  "\n     delete\t\t [*domain_id]\n"
+  "\n     add\t\t [*web_app_id, *domain_name]" \
+  "\n     delete\t\t [*web_app_id, *domain_id]\n"
 }
 
 # Function for a servers help info
@@ -730,7 +731,7 @@ function rcdk_help_services {
   "\n     list\t\t list of all server's services" \
   "\n     [action]\t\t perform the action for the service\n\t\t\t the action will be one of these: start,stop,restart,reload" \
   "\nArguments\n" \
-  "\n     [action]\t\t perform the action for the service\n\t\t\t the action will be one of these: start,stop,restart,reload"
+  "\n     [action]\t\t perform the action for the service\n\t\t\t the action will be one of these: start, stop, restart, reload"
 }
 
 # Function for a db users help info
@@ -749,7 +750,7 @@ function rcdk_help_dbusers {
   "\n     list\t\t [*page_number || *search_name]" \
   "\n     attach\t\t [*db_user, *db_id]" \
   "\n     revoke\t\t [*db_user, *db_id]" \
-  "\n     passwd\t\t [*db_user_id, ds_user_pass]\t by default, a 32-character password will be generated\n"
+  "\n     passwd\t\t [*db_user_id, db_user_pass]\t by default, a 32-character password will be generated\n"
 }
 
 # Function for a system users help info
@@ -764,7 +765,7 @@ function rcdk_help_sysusers {
   "\n     create\t\t [*sysuser_name, sysuser_pass]\t by default, a 16-character password will be generated" \
   "\n     delete\t\t [*sysuser_name, *sysuser_id]" \
   "\n     list\t\t [*page_number || *search_name]" \
-  "\n     passwd\t\t [*db_user_id, ds_user_pass]\t by default, a 16-character password will be generated\n"
+  "\n     passwd\t\t [*sysuser_id, sysuser_pass]\t by default, a 16-character password will be generated\n"
 }
 
 # Function for a dbs help info

@@ -2,13 +2,13 @@
 Shell wrapper for the runcloud.io API https://runcloud.io/
 
 ## ToDo
-- [ ] Main sections
+- [x] Main sections
   - [x] Requirements
   - [x] Installation
   - [x] Initialization
   - [x] Completion
   - [x] List of features
-  - [ ] List of commands and arguments
+  - [x] List of commands and arguments
 
 ## Requirements
 - [Curl](https://github.com/curl/curl)
@@ -192,15 +192,19 @@ rcdk dbs create $name $collation
 ```
 | parameter | Description |Required|
 |:----:|:----:|:----------:|
-| name | Database name. | yes |
+| name | Name of the database. | yes |
 | collation | Collation of the database. | no |
 ### Delete exists database
 ```bash
-rcdk dbs delete
+rcdk dbs delete $name $id
 ```
+| parameter | Description |Required|
+|:----:|:----:|:----------:|
+| name | Name of the database. | yes |
+| id | ID of the database. | no |
 ### View one page of databases list
 ```bash
-rcdk dbs list
+rcdk dbs list $string || rcdk dbs list $number
 ```
 | parameter | Description |Required|
 |:----:|:----:|:----------:|
