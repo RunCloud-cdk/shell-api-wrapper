@@ -56,7 +56,7 @@ then
   fi
 fi
 
-# Checks if required args are set
+# Checks if required args are set (Internal)
 # Example: rcdk_args_check 1 "$@"
 function rcdk_args_check {
   local a=("${@:2}")
@@ -64,6 +64,18 @@ function rcdk_args_check {
   if [ "${#a[@]}" -lt "$c" ]; then
     echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help"
     exit 1
+  fi
+}
+
+# Set a default value for the input variable (Internal)
+# Example: rcdk_def_val $var $value
+function rcdk_def_val {
+  variable=$1
+  value=$2
+  if [[ $variable = '' ]]
+  then
+    variable+=$value
+    echo "$variable"
   fi
 }
 
@@ -80,7 +92,9 @@ function rcdk_request {
   rcdk_args_check 2 "$@"
   if [[ $2 ]]; then local t="-X $2"; fi
   if [[ $3 ]]; then local d="-d $3"; fi
-  local response=`curl -s $t https://manage.runcloud.io/base-api/$1 -u $api_key:$api_secret_key -H "Content-Type: application/json" "$d"`
+  local response=`curl -s $t https://manage.runcloud.io/base-api/$1 -u $api_key:$api_secret_key \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json" "$d"`
   if [[ ! $response ]]; then response='{"error":{"message":"No response from Runcloud."}}'; fi
   echo $response | tr '\n' ' '
 }
@@ -324,7 +338,7 @@ function rcdk_apps_table {
 }
 
 # Get the id of the web application by name (Internal)
-# Example: rcdk_apps_get_id $name
+# Example: rcdk_apps_get_id $app_name
 function rcdk_apps_get_id {
   rcdk_args_check 1 "$@"
   local src_name=$1
@@ -363,6 +377,7 @@ function rcdk_apps_create {
   read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
   read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
   read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
+  read -ep "Enable SSL for this application?: " ssl_on
   if [[ $user_name = '' ]]
   then
     user_name+='runcloud'
@@ -397,6 +412,11 @@ function rcdk_apps_create {
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
+  if [[ ssl_on != '' ]]
+  then
+    local app_id=`rcdk_apps_get_id $app_name`
+    rcdk_ssl_on $app_id
+  fi
 }
 
 # Delete exists web application from runcloud
@@ -444,17 +464,48 @@ function rcdk_ssl_info {
 function rcdk_ssl_on {
   rcdk_args_check 1 "$@"
   local app_id=$1
-  read -ep "Select an ssl provider. Leave blank for LetsEncrypt: " provider
-  local data="{\"provider\":\"$provider\",\"enableHttp\":\true,\"enableHsts\":false"
-  if [[ $providier = '' ]]
+  read -ep "Select 'letsencrypt' or 'custom' provider ( by default letsencrypt ): " provider
+  if [[ $provider = '' ]]
   then
     provider+='letsencrypt'
+  fi
+  read -ep "Enable HTTP Access ? ( type 'false' or press enter for the 'true' value ): " http
+  if [[ $http = '' ]]
+  then
+    http+='true'
+  fi
+  read -ep "Enable HSTS ? ( type 'false' or press enter for the 'true' value ): " hsts
+  if [[ $hsts = '' ]]
+  then
+    hsts+='true'
+  fi
+  local data="{\"provider\":\"$provider\",\"enableHttp\":$http,\"enableHsts\":$hsts"
+
+  if [[ $provider = 'letsencrypt' ]];
+  then
+    read -ep "Select autorizaton method 'http-01' or 'dns-01' ( by default - http-01 ): " auth_method
+    if [[ $auth_method = '' ]]
+    then
+      auth_method+='http-01'
+    fi
+    data+=",\"authorizationMethod\":\"$auth_method\","
+    if [[ auth_method = 'dns-01' ]]
+    then
+      read -ep "Type id of the 3rd Party API to use: " third_id
+      data+="\"externalApi\":\"$third_id\","
+    fi
+    read -ep "Select 'live' or 'staging' environment ( by default - live ): " env
+    if [[ $env = '' ]]
+    then
+      env+='live'
+    fi
+    data+="\"environment\":\"$env\""
   else
-    provider+='custom'
     read -ep "Type a private key from custom provider: " private_key
     read -ep "Type a certificate: " certificate
     data+=",\"privateKey\":\"$private_key\",\"certificate\":\"$certificate\""
   fi
+
   data+="}"
   local response=`rcdk_request "servers/$server_id/webapps/$app_id/ssl" "POST" $data`
   rcdk_parse "$response"
