@@ -377,7 +377,7 @@ function rcdk_apps_create {
   read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
   read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
   read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
-  read -ep "Enable SSL for this application?: " ssl_on
+  read -ep "Enable SSL for this application? Type 'y' or 'n': " ssl_on
   if [[ $user_name = '' ]]
   then
     user_name+='runcloud'
@@ -412,7 +412,7 @@ function rcdk_apps_create {
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
-  if [[ ssl_on != '' ]]
+  if [[ ssl_on = 'y' ]]
   then
     local app_id=`rcdk_apps_get_id $app_name`
     rcdk_ssl_on $app_id
