@@ -194,6 +194,15 @@ function rcdk_dbusers_table {
   echo $1 | jq -r '["DB_USER_ID","DB_USER_NAME"], ["------------","---------------"], (.data[] | [.id, .name]) | @tsv'
 }
 
+# Get the name with a postfix of the database user by name (Internal)
+# Example: rcdk_dbusers_get_name $name
+function rcdk_dbusers_get_name {
+  rcdk_args_check 1 "$@"
+  local src_name=$1
+  local response=`rcdk_request "servers/$server_id/databaseusers?page=1&name=$src_name" "GET"`
+  echo $response | jq -r .data[].name
+}
+
 # Gets a list of all db-users or searching info about current db-user through the name
 # Example1: rcdk_dbusers $page_number, $search_name
 function rcdk_dbusers_get {
@@ -711,9 +720,10 @@ function rcdk_bundle {
     db_name+=$db_user
   fi
   rcdk_dbusers_create $db_user $db_user_pass
-  rcdk_dbs_create $db_user $db_col
+  local db_user_suff=`rcdk_dbusers_get_name $db_user`
+  rcdk_dbs_create $db_name $db_col
   local db_id=`rcdk_dbs_get_id $db_name`
-  rcdk_dbusers_attach $db_user $db_id
+  rcdk_dbusers_attach $db_user_suff $db_id
   rcdk_apps_create
 }
 
