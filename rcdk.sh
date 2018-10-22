@@ -382,7 +382,7 @@ function rcdk_apps_create {
     read -ep "Enter a domain name for web application: " domain_name
   done
   read -ep "Choose owner of this web application ( user runcloud by default ): " user_name
-  read -ep "Enter a public path ( leave empty for the root path ): " public_path
+  read -ep "Enter the public path, beginning with '/' ( leave empty for the root path ): " public_path
   read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
   read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
   read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
@@ -444,7 +444,7 @@ function rcdk_apps_delete {
   fi
 }
 
-# Render SSL info of application
+# Render SSL info of application (Internal)
 function rcdk_ssl_table {
   rcdk_args_check 1 "$@"
   local ssl_id=`echo $1 | jq -r .id`
@@ -608,6 +608,31 @@ function rcdk_servers_add {
   data+="}"
   local response=`rcdk_request "servers" "POST" $data`
   rcdk_parse "$response"
+}
+
+# Show hardware info about runcloud server
+function rcdk_servers_info_table {
+  rcdk_args_check 1 "$@"
+  local kernel_v=`echo $1 | jq -r .kernelVersion`
+  local proc_name=`echo $1 | jq -r .processorName`
+  local cpu_cores=`echo $1 | jq -r .totalCPUCore`
+  local mem_total=`echo $1 | jq -r .totalMemory | cut -c1-4`
+  local mem_free=`echo $1 | jq -r .freeMemory | cut -c1-4`
+  local disk_total=`echo $1 | jq -r .diskTotal | cut -c1-5`
+  local disk_free=`echo $1 | jq -r .diskFree | cut -c1-5`
+  local load_avg=`echo $1 | jq -r .loadAvg`
+  local uptime=`echo $1 | jq -r .uptime`
+  local response=`rcdk_request "servers/$server_id//show/data" "GET"`
+  echo -e "Hardware info\n-------------\nKernel version: $kernel_v\nProcessor: $proc_name, cores - $cpu_cores" \
+  "\nMemory: total - $mem_total"GB", free - $mem_free"GB"" \
+  "\nDisk: total - $disk_total"GB", free - $disk_free"GB"" \
+  "\nLoad avg: $load_avg\nUptime: $uptime"
+}
+
+# Show hardware info about runcloud server
+function rcdk_servers_info {
+  local response=`rcdk_request "servers/$server_id/show/data" "GET"`
+  rcdk_servers_info_table "$response"
 }
 
 # Delete exists server from runcloud
@@ -904,6 +929,7 @@ function rcdk_dbusers {
 # Namespace function for servers
 function rcdk_servers {
   case "$1" in
+    "info") rcdk_servers_info "${@:2}";;
     "add") rcdk_servers_add "${@:2}";;
     "delete") rcdk_servers_delete "${@:2}";;
     "list") rcdk_servers_get "${@:2}";;
