@@ -141,6 +141,10 @@ rcdk servers delete $id
 | parameter | Description |Required|
 |:----:|:----:|:----------:|
 | id | ID of the server. | yes |
+### Show server hardware info
+```bash
+rcdk servers info
+```
 ### List of all your servers
 ```bash
 rcdk servers list $string || rcdk servers list $number
