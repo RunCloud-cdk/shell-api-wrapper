@@ -839,6 +839,7 @@ function rcdk_help_servers {
   "\nCommands\n" \
   "\n     create\t\t create a new server" \
   "\n     delete\t\t delete exists server" \
+  "\n     info\t\t show server hardware info" \
   "\n     list\t\t view one page of servers list or search them by chars\n" \
   "\nArguments\n" \
   "\n     create\t\t [*srv_name, *srv_ip, provider]" \
