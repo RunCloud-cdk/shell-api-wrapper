@@ -14,7 +14,7 @@ _rcdk()
       return 0
       ;;
     apps)
-      COMPREPLY=( $(compgen -W "create delete list ssl-info ssl-on ssl-update ssl-off dns-list dns-add dns-delete" -- $cur) )
+      COMPREPLY=( $(compgen -W "create delete list" -- $cur) )
       return 0
       ;;
     ssl)
