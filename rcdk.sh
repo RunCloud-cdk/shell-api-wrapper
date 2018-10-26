@@ -381,11 +381,12 @@ function rcdk_apps_create {
   do
     read -ep "Enter a domain name for web application: " domain_name
   done
-  read -ep "Choose owner of this web application ( user runcloud by default ): " user_name
-  read -ep "Enter the public path, beginning with '/' ( leave empty for the root path ): " public_path
-  read -ep "Choose PHP version ( type 'php70rc' or 'php71rc', 'php72rc' by default ): " php_version
-  read -ep "Choose a web stack ( type 'hybrid', 'nativenginx' by default ): " stack
-  read -ep "Choose a timezone ( leave empty for default: Asia/Jerusalem ): " timezone
+  read -ep "Choose owner of this web application (user runcloud by default): " user_name
+  read -ep "Enter the public path, beginning with '/' (leave empty for the root path): " public_path
+  read -ep "Choose PHP version (type 'php70rc' or 'php71rc', 'php72rc' by default): " php_version
+  read -ep "Choose a web stack (type 'hybrid', 'nativenginx' by default): " stack
+  read -ep "Choose a stack mode (type 'development', 'production' by default): " stack_mode
+  read -ep "Choose a timezone (leave empty for default: Asia/Jerusalem): " timezone
   read -ep "Enable SSL for this application? Type 'y' or 'n': " ssl_on
   if [[ $user_name = '' ]]
   then
@@ -399,13 +400,18 @@ function rcdk_apps_create {
   then
     stack+='nativenginx'
   fi
+  if [[ $stack_mode = '' ]]
+  then
+    stack_mode+='production'
+  fi
+  local data=""
   if [[ $timezone = '' ]]
   then
     timezone+='Asia/Jerusalem'
   fi
   local data=""
     data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
-    data+="\"publicPath\":\"$public_path\",\"phpVersion\":\"$php_version\",\"stack\":\"$stack\","
+    data+="\"publicPath\":\"$public_path\",\"phpVersion\":\"$php_version\",\"stack\":\"$stack\",\"stackMode\":\"$stack_mode\","
     data+="\"clickjackingProtection\":true,\"xssProtection\":true,\"mimeSniffingProtection\":true,"
     data+="\"processManager\":\"ondemand\",\"processManagerMaxChildren\":50,\"processManagerMaxRequests\":500,"
     data+="\"openBasedir\":\"/home/$user_name/webapps/$app_name:/var/lib/php/session:/tmp\",\"timezone\":\"$timezone\","
