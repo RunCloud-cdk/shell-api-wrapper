@@ -67,18 +67,6 @@ function rcdk_args_check {
   fi
 }
 
-# Set a default value for the input variable (Internal)
-# Example: rcdk_def_val $var $value
-function rcdk_def_val {
-  variable=$1
-  value=$2
-  if [[ $variable = '' ]]
-  then
-    variable+=$value
-    echo "$variable"
-  fi
-}
-
 # Parse response message to the simple raw format (Internal)
 # Example: rcdk_data_parse "$response"
 function rcdk_parse {
