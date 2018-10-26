@@ -343,7 +343,7 @@ function rcdk_sysusers_passwd {
 # Make a readable table from response data (Internal)
 # Example: rcdk_apps_table "$response"
 function rcdk_apps_table {
-  echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["----------","-------"], (.data[] | [.id, .name]) | @tsv'
+  echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["----------","------------"], (.data[] | [.id, .name]) | @tsv'
 }
 
 # Get the id of the web application by name (Internal)
