@@ -12,15 +12,16 @@ readonly RCDK_NAME='Runcloud Shell API Wrapper'
 readonly RCDK_VERSION="1.0"
 readonly RCDK_CONFIG="$HOME/rcdk.conf"
 
-# Color constants
-readonly NC="\033[0m"
-readonly RED="\033[0;31m"
-readonly YELLOW="\033[0;33m"
-readonly GREEN="\033[0;32m"
+# Color & font constants
+readonly B="\e[1m"
+readonly NC="\e[39m"
+readonly RED="\e[31m"
+readonly YELLOW="\e[93m"
+readonly GREEN="\e[92m"
 
 # Configurating a connection with API
 function rcdk_config {
-  echo -e "${YELLOW}The keys will not be displayed in the terminal! Please enter the correct keys."
+  echo -e "${YELLOW}The keys will not be displayed in the terminal! Please enter the correct keys.${NC}"
   read -sp "Enter api key: " api_key; echo ""
   read -sp "Enter api secret key: " api_secret_key; echo ""
   if [ -e "$RCDK_CONFIG" ]
@@ -62,7 +63,7 @@ function rcdk_args_check {
   local a=("${@:2}")
   local c="$1"
   if [ "${#a[@]}" -lt "$c" ]; then
-    echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help"
+    echo -e "${RED}Error: Missing required arguments. Use 'rcdk help' command for help${NC}"
     exit 1
   fi
 }
@@ -104,7 +105,7 @@ function rcdk_pass_gen {
   echo $password
 }
 
-# Generating postfix with a-z, A-Z, 0-9 (Internal)
+# Generating postfix with a-z, 0-9 (Internal)
 # Example: rcdk_postfix_gen $length
 function rcdk_postfix_gen {
   rcdk_args_check 1 "$@"
@@ -130,7 +131,7 @@ function rcdk_ping {
 # Example: rcdk_dbs_table "$response"
 function rcdk_dbs_table {
   rcdk_args_check 1 "$@"
-  echo $1 | jq -r '["DATABASE_ID","DATABASE_NAME"], ["------------","--------------"], (.data[] | [.id, .name]) | @tsv'
+  echo $1 | jq -r '["DATABASE_ID","DATABASE_NAME"], ["============","=============="], (.data[] | [.id, .name]) | @tsv'
 }
 
 # Get the id of the database by name (Internal)
@@ -179,7 +180,7 @@ function rcdk_dbs_delete {
 # Example: rcdk_dbusers_table "$response"
 function rcdk_dbusers_table {
   rcdk_args_check 1 "$@"
-  echo $1 | jq -r '["DB_USER_ID","DB_USER_NAME"], ["------------","---------------"], (.data[] | [.id, .name]) | @tsv'
+  echo $1 | jq -r '["DB_USER_ID","DB_USER_NAME"], ["============","==============="], (.data[] | [.id, .name]) | @tsv'
 }
 
 # Get the name with a postfix of the database user by name (Internal)
@@ -214,7 +215,7 @@ function rcdk_dbusers_create {
   then
     local pass=`rcdk_pass_gen 32`
     local postfix=`rcdk_postfix_gen 5`
-    echo "Password for user $1 - $pass"
+    echo -e "${YELLOW}Password for user $1${NC} - ${B}$pass"
   else
     local pass=$2
   fi
@@ -259,7 +260,7 @@ function rcdk_dbusers_passwd {
   if [ ! $2 ]
   then
     local pass=`rcdk_pass_gen 32`
-    echo "New password is $pass"
+    echo -e "${YELLOW}New password is ${WHITE}${B}$pass"
   else
     local pass=$2
   fi
@@ -271,7 +272,7 @@ function rcdk_dbusers_passwd {
 # Example: rcdk_sysusers_table "$response"
 function rcdk_sysusers_table {
   rcdk_args_check 1 "$@"
-  echo $1 | jq -r '["SYS_USER_ID","SYS_USER_NAME"], ["------------", "------------"], (.data[] | [.id, .username]) | @tsv'
+  echo $1 | jq -r '["SYS_USER_ID","SYS_USER_NAME"], ["============", "============="], (.data[] | [.id, .username]) | @tsv'
 }
 
 # Gets a list of all system users or searching info about current system user through the name
@@ -331,7 +332,7 @@ function rcdk_sysusers_passwd {
 # Make a readable table from response data (Internal)
 # Example: rcdk_apps_table "$response"
 function rcdk_apps_table {
-  echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["----------","------------"], (.data[] | [.id, .name]) | @tsv'
+  echo $1 | jq -r '["WEB_APP_ID","WEB_APP_NAME"], ["============","============"], (.data[] | [.id, .name]) | @tsv'
 }
 
 # Get the id of the web application by name (Internal)
@@ -444,12 +445,12 @@ function rcdk_ssl_table {
   local ssl_id=`echo $1 | jq -r .id`
   if [ $ssl_id = 'null' ]
   then
-    echo -e "SSL info\n--------\n${YELLOW}SSL is uninstalled for this application"
+    echo -e "SSL INFO\n========\n${YELLOW}SSL is uninstalled for this application"
   else
     local method=`echo $1 | jq -r .method_humanize`
     local renewal_date=`echo $1 | jq -r .renewal_date`
     local cert=`echo $1 | jq -r .certificate`
-    echo -e "SSL info\n--------\nSSL id: $ssl_id\nSSL method: $method\nRenewal date: $renewal_date"
+    echo -e "SSL INFO\n========\nSSL id: $ssl_id\nSSL method: $method\nRenewal date: $renewal_date"
   fi
 }
 
@@ -543,7 +544,7 @@ function rcdk_dns_get {
   rcdk_args_check 1 "$@"
   local app_id=$1
   local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname" "GET"`
-  echo "$response"| jq -r '["DOMAIN_ID","DOMAIN_NAME"], ["---------","-----------"], (.data[] | [.id, .name]) | @tsv'
+  echo "$response"| jq -r '["DOMAIN_ID","DOMAIN_NAME"], ["============","=============="], (.data[] | [.id, .name]) | @tsv'
 }
 
 # Add new domain name for the application
@@ -570,7 +571,7 @@ function rcdk_dns_delete {
 # Make a readable table from response data (Internal)
 # Example: rcdk_servers_table "$response"
 function rcdk_servers_table {
-  echo $1 | jq -r '["SERVER_ID","SERVER_NAME","IP_ADDRESS"], ["---------","-----------","---------"],
+  echo $1 | jq -r '["SERVER_ID","SERVER_NAME","IP_ADDRESS"], ["============","===========","============="],
    (.data[] | [.id, .serverName, .ipAddress]) | @tsv'
 }
 
@@ -617,10 +618,10 @@ function rcdk_servers_info_table {
   local load_avg=`echo $1 | jq -r .loadAvg`
   local uptime=`echo $1 | jq -r .uptime`
   local response=`rcdk_request "servers/$server_id//show/data" "GET"`
-  echo -e "Hardware info\n-------------\nKernel version: $kernel_v\nProcessor: $proc_name, cores - $cpu_cores" \
-  "\nMemory: total - $mem_total"GB", free - $mem_free"GB"" \
-  "\nDisk: total - $disk_total"GB", free - $disk_free"GB"" \
-  "\nLoad avg: $load_avg\nUptime: $uptime"
+  echo -e "Hardware info\n=============\nKernel version: $kernel_v\nProcessor: $proc_name, cores - $cpu_cores" \
+  "\nMemory: total - $mem_total"GB", ${GREEN}free - $mem_free"GB"${NC}" \
+  "\nDisk: total - $disk_total"GB", ${GREEN}free - $disk_free"GB"${NC}" \
+  "\nLoad avg: $load_avg\nUptime: ${GREEN}$uptime${NC}"
 }
 
 # Show hardware info about runcloud server
