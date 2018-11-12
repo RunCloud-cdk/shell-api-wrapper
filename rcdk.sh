@@ -28,10 +28,10 @@ function rcdk_config {
   then
     sed -i "s/api_key=.*/api_key=$api_key/" $RCDK_CONFIG
     sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $RCDK_CONFIG
-    echo -e "${GREEN}Configuration file was successfully updated!"
+    echo -e "${GREEN}Configuration file was successfully updated!${NC}"
   else
     printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' >> ~/rcdk.conf
-    echo -e "${GREEN}Configuration file was successfully created!"
+    echo -e "${GREEN}Configuration file was successfully created!${NC}"
   fi
 }
 
@@ -40,10 +40,10 @@ function rcdk_update {
   cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk
   chmod +x rcdk && sudo cp -u rcdk /usr/local/bin/rcdk
   rm rcdk
-  echo -e "${GREEN}Updating Shell wrapper done"
+  echo -e "${GREEN}Updating Shell wrapper done${NC}"
   wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo cp rcdk /etc/bash_completion.d/
   rm rcdk
-  echo -e "${GREEN}Updating Bash completion done"
+  echo -e "${GREEN}Updating Bash completion done${NC}"
 }
 
 # Check if api creds have been set. If not, check if they're in the config file.
@@ -72,7 +72,7 @@ function rcdk_args_check {
 # Example: rcdk_data_parse "$response"
 function rcdk_parse {
   local result=`echo $1 | jq -rc ".message"`
-  echo -e "${GREEN}$result"
+  echo -e "${GREEN}$result${NC}"
 }
 
 # Request construct API function (Internal)
