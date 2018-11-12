@@ -371,7 +371,7 @@ function rcdk_apps_create {
     read -ep "Enter a domain name for web application: " domain_name
   done
   read -ep "Choose owner of this web application (user runcloud by default): " user_name
-  read -ep "Enter the public path, beginning with '/' (leave empty for the root path): " public_path
+  read -ep "Enter the public path: " public_path
   read -ep "Choose PHP version (type 'php70rc' or 'php71rc', 'php72rc' by default): " php_version
   read -ep "Choose a web stack (type 'hybrid', 'nativenginx' by default): " stack
   read -ep "Choose a stack mode (type 'development', 'production' by default): " stack_mode
@@ -380,6 +380,11 @@ function rcdk_apps_create {
   if [[ $user_name = '' ]]
   then
     user_name+='runcloud'
+  fi
+  local first=`echo $public_path | head -c 1`
+  if [[ $first != '/' ]]
+  then
+    public_path="/$public_path"
   fi
   if [[ $php_version = '' ]]
   then
