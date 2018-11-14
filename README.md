@@ -1,15 +1,6 @@
 # shell-api-wrapper
 Shell wrapper for the runcloud.io API https://runcloud.io/
 
-## ToDo
-- [x] Main sections
-  - [x] Requirements
-  - [x] Installation
-  - [x] Initialization
-  - [x] Completion
-  - [x] List of features
-  - [x] List of commands and arguments
-
 ## Requirements
 - [Curl](https://github.com/curl/curl)
 - [jq](https://github.com/stedolan/jq) (version 1.5 or later)
@@ -76,7 +67,7 @@ After the server has been selected, you can start working with most of the featu
 
 ### Domains
 - [Show list of domains for the web application](https://github.com/RunCloud-cdk/shell-api-wrapper#show-list-of-domains-for-the-web-application)
-- [Add new domain name for the web application](https://github.com/RunCloud-cdk/shell-api-wrapper#add-new-domain-name-for-the-web-application)
+- [Add new domain names for the web application](https://github.com/RunCloud-cdk/shell-api-wrapper#add-new-domain-names-for-the-web-application)
 - [Delete domain name from the web application by id](https://github.com/RunCloud-cdk/shell-api-wrapper#delete-domain-name-from-the-web-application-by-id)
 
 ### SSL certificates
@@ -274,9 +265,9 @@ rcdk dns list $id
 | parameter | Description | Required |
 |:----:|:----:|:----------:|
 | id | ID of the web application. | yes |
-### Add new domain name for the web application
+### Add new domain names for the web application
 ```bash
-rcdk dns add $id $name
+rcdk dns add $id $name_1 $name_n
 ```
 | parameter | Description | Required |
 |:----:|:----:|:----------:|

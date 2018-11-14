@@ -553,14 +553,17 @@ function rcdk_dns_get {
 }
 
 # Add new domain name for the application
-# Example: rcdk dns add $web_app_id $domain_name
+# Example: rcdk dns add $web_app_id $domain_name_1 $domain_name_n
 function rcdk_dns_add {
   rcdk_args_check 2 "$@"
   local app_id=$1
-  local domain_name=$2
-  local data="{\"domainName\":\"$domain_name\"}"
-  local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname" "POST" $data`
-  rcdk_parse "$response"
+  declare -a domains=("${@:2}")
+  for d in "${domains[@]}"
+  do
+    local data="{\"domainName\":\"$d\"}"
+    local response=`rcdk_request "servers/$server_id/webapps/$app_id/domainname" "POST" $data`
+    rcdk_parse "$response"
+  done
 }
 
 # Get domains list of application
@@ -825,11 +828,11 @@ function rcdk_help_dns {
   echo -e "\nusage: rcdk dns <command> [<args>]\n"\
   "\nCommands\n" \
   "\n     list\t\t show list of domains for the web application" \
-  "\n     add\t\t add new domain name for the web application" \
+  "\n     add\t\t add new domain names for the web application" \
   "\n     delete\t\t delete domain name from the web application by id\n" \
   "\nArguments\n" \
   "\n     list\t\t [*web_app_id]" \
-  "\n     add\t\t [*web_app_id, *domain_name]" \
+  "\n     add\t\t [*web_app_id, *domain_name-1, domain_name-n]" \
   "\n     delete\t\t [*web_app_id, *domain_id]\n"
 }
 
