@@ -382,7 +382,7 @@ function rcdk_apps_create {
     user_name+='runcloud'
   fi
   local first=`echo $public_path | head -c 1`
-  if [[ $first != '/' ]]
+  if [[ $public_path != '' && $first != '/' ]]
   then
     public_path="/$public_path"
   fi
