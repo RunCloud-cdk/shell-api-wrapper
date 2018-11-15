@@ -162,9 +162,16 @@ function rcdk_dbs_get {
 # Example: rcdk dbs create $dbname $dbcollation
 function rcdk_dbs_create {
   rcdk_args_check 1 "$@"
-  local postfix=`rcdk_postfix_gen 5`
-  local response=`rcdk_request "servers/$server_id/databases" "POST" "{\"databaseName\":\"$1$postfix\",\"databaseCollation\":\"$2\"}"`
-  rcdk_parse "$response"
+  local db_name=$1
+  if echo "$db_name" | grep -q "_"
+  then
+    local response=`rcdk_request "servers/$server_id/databases" "POST" "{\"databaseName\":\"$db_name\",\"databaseCollation\":\"$2\"}"`
+    rcdk_parse "$response"
+  else
+    local pf=`rcdk_postfix_gen 5`
+    local response=`rcdk_request "servers/$server_id/databases" "POST" "{\"databaseName\":\"$db_name$pf\",\"databaseCollation\":\"$2\"}"`
+    rcdk_parse "$response"
+  fi
 }
 
 
@@ -742,16 +749,20 @@ function rcdk_bundle {
   read -ep "Type name of the database user: " db_user
   read -sp "Type the password for the database user ( by default, a 32-character password will be generated ): " db_user_pass; echo ""
   read -ep "Type name of the database ( by default such as database username ): " db_name
-  read -ep "Type database collation: " db_col
+  read -ep "Type database collation (not required): " db_col
   if [[ $db_name == '' ]]
   then
     db_name+=$db_user
   fi
-  rcdk_dbusers_create $db_user $db_user_pass
-  local db_user_suff=`rcdk_dbusers_get_name $db_user`
+  local db_user_pf=`rcdk_postfix_gen 5`
+  local db_user_pass=`rcdk_pass_gen 32`
+  local db_username=$db_user$db_user_pf
+  local db_name_pf=`rcdk_postfix_gen 5`
+  db_name+=$db_name_pf
+  rcdk_dbusers_create $db_username $db_user_pass
   rcdk_dbs_create $db_name $db_col
   local db_id=`rcdk_dbs_get_id $db_name`
-  rcdk_dbusers_attach $db_user_suff $db_id
+  rcdk_dbusers_attach $db_username $db_id
   rcdk_apps_create
 }
 
