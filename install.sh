@@ -24,3 +24,6 @@ else
   wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo mv rcdk /etc/bash_completion.d/
   echo -e "${GREEN}Bash completion was installed successfully!${NC}"
 fi
+
+echo -e "${GREEN}This script has been removed from your system!${NC}"
+rm -f "$0"

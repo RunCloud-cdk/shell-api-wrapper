@@ -18,7 +18,7 @@ The Runcloud API requires you to pass the `server_id` on each request (in additi
 Therefore it was decided that before you start working with the API it is better to initialize work with a specific server.
 
 Run `rcdk init`. The program will show the first page of server list and offer to choose one of them by entering `server id`.
-To show any page watch [List of all your servers](https://github.com/RunCloud-cdk/shell-api-wrapper#list-of-all-your-servers)`.
+To show any page watch [List of all your servers](https://github.com/RunCloud-cdk/shell-api-wrapper#list-of-all-your-servers).
 
 ## Bash completion
 This function supporting only Ubuntu/Debian users with bash interpreter.\
