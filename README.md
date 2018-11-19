@@ -6,26 +6,22 @@ Shell wrapper for the runcloud.io API https://runcloud.io/
 - [jq](https://github.com/stedolan/jq) (version 1.5 or later)
 
 ## Installation
-Replace `API KEY` and `API SECRET KEY` to your credentials, then run the following commands:
+Run installation command and follow the instructions:
 ```bash
-$ cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk && chmod +x rcdk && sudo cp rcdk /usr/local/bin/rcdk
-$ ak="API KEY"; ask="API SECRET KEY"; printf 'api_key="'$ak'"\napi_secret_key="'$ask'"\nserver_id=' >> ~/rcdk.conf
+wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/install.sh -O- | sh
 ```
-The second command creates a configuration file named ' rcdk.conf ' with API keys in the user's home directory. Empty `server_id` will needed for the next step.\
+After the installation will be created a config file named `rcdk.conf` in the user home directory.\
 Now you can run `rcdk ping` to test the API connection.
 
 ## Initialization
 The Runcloud API requires you to pass the `server_id` on each request (in addition to the `ping` command and some of the `servers` commands).
 Therefore it was decided that before you start working with the API it is better to initialize work with a specific server.
 
-Run `rcdk init`. The program will show the list of servers and offer to choose one of them by entering `server id`.
+Run `rcdk init`. The program will show the first page of server list and offer to choose one of them by entering `server id`.
+To show any page watch [List of all your servers](https://github.com/RunCloud-cdk/shell-api-wrapper#list-of-all-your-servers)`.
 
 ## Bash completion
-For the activate completion try next command: 
-```bash
-wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo cp rcdk /etc/bash_completion.d/
-```
-This command actual for Ubuntu/Debian users with bash interpreter.\
+This function supporting only Ubuntu/Debian users with bash interpreter.\
 See [GNU documentation](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html) for more info about bash completion.
 
 ## Available features
