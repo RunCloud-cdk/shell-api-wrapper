@@ -21,9 +21,8 @@ readonly GREEN="\e[92m"
 
 # Configurating a connection with API
 function rcdk_config {
-  echo -e "${YELLOW}The keys will not be displayed in the terminal! Please enter the correct keys.${NC}"
-  read -sp "Enter api key: " api_key; echo ""
-  read -sp "Enter api secret key: " api_secret_key; echo ""
+  read -ep "Enter api key: " api_key
+  read -ep "Enter api secret key: " api_secret_key
   if [ -e "$RCDK_CONFIG" ]
   then
     sed -i "s/api_key=.*/api_key=$api_key/" $RCDK_CONFIG
