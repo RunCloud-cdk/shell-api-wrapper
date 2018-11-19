@@ -148,11 +148,12 @@ rcdk services list
 ```
 ### Actions with services
 ```bash
-rcdk services $action
+rcdk services $action $name
 ```
 | parameter | Description |Required|
 |:----:|:----:|:----------:|
 | action | A command for a service like `start`, `stop`, `restart` or `reload`. | yes |
+| name | The name of service, one of: `nginx-rc`, `apache2-rc`, `mysql`, `supervisord`, `redis-server`, `memcached`, `beanstalkd`. | yes |
 
 ## Apps
 ### Create a new web application
