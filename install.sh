@@ -11,7 +11,8 @@ read -ep "Enter your API SECRET KEY: " ask
 
 # Download and install shell api wrapper
 cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk && chmod +x rcdk && sudo mv rcdk /usr/local/bin/rcdk
-printf 'api_key="'$ak'"\napi_secret_key="'$ask'"\nserver_id=' > ~/rcdk.conf
+mkdir ~/rcdk
+printf 'api_key="'$ak'"\napi_secret_key="'$ask'"\nserver_id=' > ~/rcdk/rcdk.conf
 echo -e "${GREEN}Runcloud Shell API Wrapper was installed successfully!${NC}"
 
 # Check OS for Ubuntu/Debian and install bash completion

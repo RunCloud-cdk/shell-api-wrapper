@@ -10,7 +10,8 @@ set -o errexit
 # RCDK constants
 readonly RCDK_NAME='Runcloud Shell API Wrapper'
 readonly RCDK_VERSION="1.0"
-readonly RCDK_CONFIG="$HOME/rcdk.conf"
+readonly RCDK_CONF_DIR=~/rcdk
+readonly RCDK_CONFIG="$RCDK_CONF_DIR/rcdk.conf"
 
 # Color & font constants
 readonly B="\e[1m"
@@ -29,7 +30,8 @@ function rcdk_config {
     sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $RCDK_CONFIG
     echo -e "${GREEN}Configuration file was successfully updated!${NC}"
   else
-    printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' >> ~/rcdk.conf
+    mkdir $RCDK_CONF_DIR
+    printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' > $RCDK_CONFIG
     echo -e "${GREEN}Configuration file was successfully created!${NC}"
   fi
 }
