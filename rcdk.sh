@@ -10,8 +10,8 @@ set -o errexit
 # RCDK constants
 readonly RCDK_NAME='Runcloud Shell API Wrapper'
 readonly RCDK_VERSION="1.0"
-readonly RCDK_CONF_DIR=~/rcdk
-readonly RCDK_CONFIG="$RCDK_CONF_DIR/rcdk.conf"
+readonly RCDK_CONF_DIR="$HOME/rcdkConfigs"
+readonly API_CONFIG="$RCDK_CONF_DIR/api.conf"
 
 # Color & font constants
 readonly B="\e[1m"
@@ -24,14 +24,14 @@ readonly GREEN="\e[92m"
 function rcdk_config {
   read -ep "Enter api key: " api_key
   read -ep "Enter api secret key: " api_secret_key
-  if [ -e "$RCDK_CONFIG" ]
+  if [[ -e $API_CONFIG ]]
   then
-    sed -i "s/api_key=.*/api_key=$api_key/" $RCDK_CONFIG
-    sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $RCDK_CONFIG
+    sed -i "s/api_key=.*/api_key=$api_key/" $API_CONFIG
+    sed -i "s/api_secret_key=.*/api_secret_key=$api_secret_key/" $API_CONFIG
     echo -e "${GREEN}Configuration file was successfully updated!${NC}"
   else
     mkdir $RCDK_CONF_DIR
-    printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' > $RCDK_CONFIG
+    printf 'api_key="'$api_key'"\napi_secret_key="'$api_secret_key'"\nserver_id=' > $API_CONFIG
     echo -e "${GREEN}Configuration file was successfully created!${NC}"
   fi
 }
@@ -50,9 +50,9 @@ function rcdk_update {
 # Check if api creds have been set. If not, check if they're in the config file.
 if [[ ! "$api_key" || ! "$api_secret_key" ]]
 then
-  if [ -e "$RCDK_CONFIG" ]
+  if [[ -e $API_CONFIG ]]
   then
-    . "$RCDK_CONFIG"
+    . "$API_CONFIG"
   else
     rcdk_config
   fi
@@ -699,7 +699,7 @@ function rcdk_services_action {
 function rcdk_init {
   rcdk servers list 1; echo ""
   read -ep "Enter id of the server you want to work with: " server_id
-  sed -i "s/server_id=.*/server_id=$server_id/" $RCDK_CONFIG
+  sed -i "s/server_id=.*/server_id=$server_id/" $API_CONFIG
   echo -e "${GREEN}Successfully switched on $server_id server."
 }
 
