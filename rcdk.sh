@@ -14,11 +14,11 @@ readonly RCDK_CONF_DIR="$HOME/rcdkConfigs"
 readonly API_CONFIG="$RCDK_CONF_DIR/api.conf"
 
 # Color & font constants
-readonly B="\e[1m"
-readonly NC="\e[39m"
-readonly RED="\e[31m"
-readonly YELLOW="\e[93m"
-readonly GREEN="\e[92m"
+readonly B="\033[0;30m"
+readonly NC="\033[0m"
+readonly RED="\033[0;31m"
+readonly YELLOW="\033[0;33m"
+readonly GREEN="\033[0;32m"
 
 # Configurating a connection with API
 function rcdk_config {
