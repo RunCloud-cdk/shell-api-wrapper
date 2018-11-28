@@ -761,6 +761,7 @@ function rcdk_bundle {
   local db_name_pf=`rcdk_postfix_gen 5`
   db_name+=$db_name_pf
   rcdk_dbusers_create $db_username $db_user_pass
+  echo -e "${YELLOW}Password for user $db_username - $db_user_pass${NC}"
   rcdk_dbs_create $db_name $db_col
   local db_id=`rcdk_dbs_get_id $db_name`
   rcdk_dbusers_attach $db_username $db_id
