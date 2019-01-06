@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Color constants
-readonly NC="\033[0m"
-readonly GREEN="\033[0;32m"
-readonly RED="\033[0;31m"
-readonly CYAN="\033[0;36m"
+readonly NC='\033[0m'
+readonly GREEN='\033[0;32m'
+readonly RED='\033[0;31m'
+readonly CYAN='\033[0;36m'
 
 echo -e "${CYAN}Runcloud Shell API Wrapper installation:${NC}"
 read -ep "Enter your API KEY: " ak

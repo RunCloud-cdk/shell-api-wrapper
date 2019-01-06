@@ -14,11 +14,11 @@ readonly RCDK_CONF_DIR="$HOME/rcdkConfigs"
 readonly API_CONFIG="$RCDK_CONF_DIR/api.conf"
 
 # Color & font constants
-readonly B="\033[0;30m"
-readonly NC="\033[0m"
-readonly RED="\033[0;31m"
-readonly YELLOW="\033[0;33m"
-readonly GREEN="\033[0;32m"
+readonly B='\033[0;30m'
+readonly NC='\033[0m'
+readonly RED='\033[0;31m'
+readonly YELLOW='\033[0;33m'
+readonly GREEN='\033[0;32m'
 
 # Configurating a connection with API
 function rcdk_config {
@@ -1040,7 +1040,7 @@ function rcdk {
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
-    *) echo -e "${RED}Error: Command not found. Use the 'rcdk help' command for detailed information.";;
+    *) echo -e "${RED}Error: Command not found. Use the 'rcdk help' command for detailed information.${NC}";;
   esac
 }
 
