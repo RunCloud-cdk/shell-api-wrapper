@@ -1040,7 +1040,7 @@ function rcdk {
     "dbs") rcdk_dbs "${@:2}";;
     "dbusers") rcdk_dbusers "${@:2}";;
     "ssh") rcdk_ssh "${@:2}";;
-    *) echo -e "${YELLOW}WARNING: Command not found. Use 'rcdk help' command";;
+    *) echo -e "${RED}Error: Command not found. Use the 'rcdk help' command for detailed information.";;
   esac
 }
 
