@@ -93,32 +93,18 @@ function rcdk_request {
 # Example: rcdk_pass_gen $length
 function rcdk_pass_gen {
   rcdk_args_check 1 "$@"
-  local symbols=""
-  for symbol in {A..Z} {a..z} {0..9}; do symbols=$symbols$symbol; done
-  symbols=$symbols'@%-_=.,'
-  local pwd_length=$1  # password length
-  local password=""    # passwd variable
-  RANDOM=256     # random generator init
-  for i in `seq 1 $pwd_length`
-  do
-    password=$password${symbols:$(expr $RANDOM % ${#symbols}):1}
-  done
+  local pwd_length=$1
+  local chars='A-Za-z0-9_@%^#'
+  local password=`head /dev/urandom | tr -dc ${chars} | head -c ${pwd_length} ; echo ''`
   echo $password
 }
-
+rcdk_pass_gen 32
 # Generating postfix with a-z, 0-9 (Internal)
 # Example: rcdk_postfix_gen $length
 function rcdk_postfix_gen {
   rcdk_args_check 1 "$@"
-  local symbols=""
-  for symbol in {a..z} {0..9}; do symbols=$symbols$symbol; done
-  local pfix_length=$1  # postfix length
-  local postfix="_"    # postfix variable
-  RANDOM=256     # random generator init
-  for i in `seq 1 $pfix_length`
-  do
-    postfix=$postfix${symbols:$(expr $RANDOM % ${#symbols}):1}
-  done
+  local pfix_length=$1
+  local postfix='_'`head /dev/urandom | tr -dc a-z0-9 | head -c ${pfix_length} ; echo ''`    # postfix variable
   echo $postfix
 }
 
