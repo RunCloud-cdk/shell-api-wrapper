@@ -10,7 +10,7 @@ Run installation command and follow the instructions:
 ```bash
 wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/install.sh && chmod +x install.sh && ./install.sh
 ```
-After the installation will be created a config file named `rcdk.conf` in the `$HOME/rcdk` directory.\
+After the installation will be created a config directory named `rcdkConfigs` in the `$HOME/rcdk` directory.\
 Now you can run `rcdk ping` to test the API connection.
 
 ## Initialization
