@@ -89,24 +89,14 @@ function rcdk_request {
   echo $response | tr '\n' ' '
 }
 
-# Generating secure passwords with a-z, A-Z, 0-9 and special chars (Internal)
-# Example: rcdk_pass_gen $length
-function rcdk_pass_gen {
-  rcdk_args_check 1 "$@"
+# Generating string from input chars (Internal)
+# Example: rcdk_str_gen $length $chars
+function rcdk_str_gen {
+  rcdk_args_check 2 "$@"
   local length=$1
-  local chars='A-Za-z0-9_@%^#'
+  local chars=$2
   local password=`LC_ALL=C tr -dc ${chars} < /dev/urandom | head -c ${length}`
   echo $password
-}
-
-# Generating postfix with a-z, 0-9 (Internal)
-# Example: rcdk_postfix_gen $length
-function rcdk_postfix_gen {
-  rcdk_args_check 1 "$@"
-  local length=$1
-  local chars='a-z0-9'
-  local postfix='_'`LC_ALL=C tr -dc ${chars} < /dev/urandom | head -c ${length}`
-  echo $postfix
 }
 
 # Checking runcloud api connection
@@ -156,12 +146,11 @@ function rcdk_dbs_create {
     local response=`rcdk_request "servers/$server_id/databases" "POST" "{\"databaseName\":\"$db_name\",\"databaseCollation\":\"$2\"}"`
     rcdk_parse "$response"
   else
-    local pf=`rcdk_postfix_gen 5`
+    local pf='_'`rcdk_str_gen 5 'a-z0-9'`
     local response=`rcdk_request "servers/$server_id/databases" "POST" "{\"databaseName\":\"$db_name$pf\",\"databaseCollation\":\"$2\"}"`
     rcdk_parse "$response"
   fi
 }
-
 
 # Delete database by id
 # Example: rcdk dbs delete $db_name $db_id
@@ -208,8 +197,8 @@ function rcdk_dbusers_create {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-    local pass=`rcdk_pass_gen 32`
-    local postfix=`rcdk_postfix_gen 5`
+    local pass=`rcdk_str_gen 32 'A-Za-z0-9_@%^#'`
+    local postfix='_'`rcdk_str_gen 5 'a-z0-9'`
     echo -e "${YELLOW}Password for user $1${NC} - ${B}$pass"
   else
     local pass=$2
@@ -254,7 +243,7 @@ function rcdk_dbusers_passwd {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-    local pass=`rcdk_pass_gen 32`
+    local pass=`rcdk_str_gen 32 'A-Za-z0-9_@%^#'`
     echo -e "${YELLOW}New password is ${WHITE}${B}$pass"
   else
     local pass=$2
@@ -292,7 +281,7 @@ function rcdk_sysusers_create {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-    local pass=`rcdk_pass_gen 16`
+    local pass=`rcdk_str_gen 16 'A-Za-z0-9_@%^#'`
     echo "Password for user $1 - $pass"
   else
     local pass=$2
@@ -315,7 +304,7 @@ function rcdk_sysusers_passwd {
   rcdk_args_check 1 "$@"
   if [ ! $2 ]
   then
-    local pass=`rcdk_pass_gen 16`
+    local pass=`rcdk_str_gen 16 'A-Za-z0-9_@%^#'`
     echo "New password is $pass"
   else
     local pass=$2
@@ -742,10 +731,10 @@ function rcdk_bundle {
   then
     db_name+=$db_user
   fi
-  local db_user_pf=`rcdk_postfix_gen 5`
-  local db_user_pass=`rcdk_pass_gen 32`
+  local db_user_pf='_'`rcdk_str_gen 5 'a-z0-9'`
+  local db_user_pass=`rcdk_str_gen 32 'A-Za-z0-9_@%^#'`
   local db_username=$db_user$db_user_pf
-  local db_name_pf=`rcdk_postfix_gen 5`
+  local db_name_pf='_'`rcdk_str_gen 5 'a-z0-9'`
   db_name+=$db_name_pf
   rcdk_dbusers_create $db_username $db_user_pass
   echo -e "${YELLOW}Password for user $db_username - $db_user_pass${NC}"
