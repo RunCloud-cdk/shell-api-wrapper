@@ -93,9 +93,9 @@ function rcdk_request {
 # Example: rcdk_pass_gen $length
 function rcdk_pass_gen {
   rcdk_args_check 1 "$@"
-  local pwd_length=$1
+  local length=$1
   local chars='A-Za-z0-9_@%^#'
-  local password=`head /dev/urandom | tr -dc ${chars} | head -c ${pwd_length}`
+  local password=`LC_ALL=C tr -dc ${chars} < /dev/urandom | head -c ${length}`
   echo $password
 }
 
@@ -103,8 +103,9 @@ function rcdk_pass_gen {
 # Example: rcdk_postfix_gen $length
 function rcdk_postfix_gen {
   rcdk_args_check 1 "$@"
-  local pfix_length=$1
-  local postfix='_'`head /dev/urandom | tr -dc a-z0-9 | head -c ${pfix_length}`
+  local length=$1
+  local chars='a-z0-9'
+  local postfix='_'`LC_ALL=C tr -dc ${chars} < /dev/urandom | head -c ${length}`
   echo $postfix
 }
 
