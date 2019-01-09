@@ -95,16 +95,16 @@ function rcdk_pass_gen {
   rcdk_args_check 1 "$@"
   local pwd_length=$1
   local chars='A-Za-z0-9_@%^#'
-  local password=`head /dev/urandom | tr -dc ${chars} | head -c ${pwd_length} ; echo ''`
+  local password=`head /dev/urandom | tr -dc ${chars} | head -c ${pwd_length}`
   echo $password
 }
-rcdk_pass_gen 32
+
 # Generating postfix with a-z, 0-9 (Internal)
 # Example: rcdk_postfix_gen $length
 function rcdk_postfix_gen {
   rcdk_args_check 1 "$@"
   local pfix_length=$1
-  local postfix='_'`head /dev/urandom | tr -dc a-z0-9 | head -c ${pfix_length} ; echo ''`    # postfix variable
+  local postfix='_'`head /dev/urandom | tr -dc a-z0-9 | head -c ${pfix_length}`
   echo $postfix
 }
 
