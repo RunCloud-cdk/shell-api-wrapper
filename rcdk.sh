@@ -39,7 +39,7 @@ function rcdk_config {
 # Updating rcdk from Github
 function rcdk_update {
   cd && curl -sSL https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk.sh > rcdk
-  chmod +x rcdk && sudo cp -u rcdk /usr/local/bin/rcdk
+  chmod +x rcdk && sudo cp rcdk /usr/local/bin/rcdk
   rm rcdk
   echo -e "${GREEN}Updating Shell wrapper done${NC}"
   wget https://raw.githubusercontent.com/RunCloud-cdk/shell-api-wrapper/master/rcdk && sudo cp rcdk /etc/bash_completion.d/
