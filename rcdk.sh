@@ -109,13 +109,10 @@ function rcdk_ping {
 # Source files of rcdk functions
 if [[ -d "$FUNC_DIR" ]]
 then
-  files=`ls ${FUNC_DIR/}`
+  files=`ls ${FUNC_DIR}/`
   for file in $files
   do
-    if [[ -f $file ]]
-    then
-      source "$FUNC_DIR/$file"
-    fi
+    source "$FUNC_DIR/$file"
   done
 else
   echo -e "${RED}Error: The main rcdk files were not found, please carry out the correct installation of the program!${NC}"
