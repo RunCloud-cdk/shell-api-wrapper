@@ -107,22 +107,20 @@ function rcdk_ping {
 }
 
 # Source files of rcdk functions
-function rcdk_sources {
-  if [[ -d "$FUNC_DIR" ]]
-  then
-    files=`ls ${FUNC_DIR/}`
-    for file in $files
-    do
-      if [[ -f $file ]]
-      then
-        . $file
-      fi
-    done
-  else
-    echo -e "${RED}Error: The main rcdk files were not found, please carry out the correct installation of the program!${NC}"
-    exit 1
-  fi
-}
+if [[ -d "$FUNC_DIR" ]]
+then
+  files=`ls ${FUNC_DIR/}`
+  for file in $files
+  do
+    if [[ -f $file ]]
+    then
+      source "$FUNC_DIR/$file"
+    fi
+  done
+else
+  echo -e "${RED}Error: The main rcdk files were not found, please carry out the correct installation of the program!${NC}"
+  exit 1
+fi
 
 # Init work with rcdk by server_id
 # Example: rcdk_init $server_id
