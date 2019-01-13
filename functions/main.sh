@@ -93,6 +93,7 @@ function rcdk_ssh {
   case "$1" in
     "add") rcdk_ssh_add "${@:2}";;
     "delete") rcdk_ssh_delete "${@:2}";;
+    "store") rcdk_ssh_store "${@:2}";;
     "list") rcdk_ssh_get "${@:2}";;
     *) rcdk_help_ssh;;
   esac

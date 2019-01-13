@@ -13,6 +13,7 @@ readonly RCDK_VERSION="1.0"
 readonly RCDK_CONF_DIR="$HOME/rcdkConfigs"
 readonly API_CONFIG="$RCDK_CONF_DIR/api.conf"
 readonly FUNC_DIR="$RCDK_CONF_DIR/functions"
+readonly KEY_PATH="$RCDK_CONF_DIR/keystore"
 
 # Color & font constants
 readonly B='\033[0;30m'

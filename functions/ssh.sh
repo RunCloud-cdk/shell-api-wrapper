@@ -41,3 +41,63 @@ function rcdk_ssh_delete {
   local response=`rcdk_request "servers/$server_id/sshcredentials/$key_id" "DELETE" "{\"label\":\"$label\"}"`
   rcdk_parse "$response"
 }
+
+# Function for add ssh keys to the store
+function rcdk_ssh_store_add {
+  local a='y'
+  while [[ $a == 'y' ]]
+  do
+    echo -e "${B}=== Add keys to the storage ===${NC}"
+    read -ep "Enter a label for the new key: " label
+    read -ep "Enter the key: " key
+    if [[ -f $KEY_PATH ]]
+    then
+      echo "$label $key" >> "$KEY_PATH"
+    else
+      touch $KEY_PATH
+      echo "$label $key" >> "$KEY_PATH"
+    fi
+    echo -e ${GREEN}Key was successfully deleted from storage! ${NC}
+    read -ep "Enter another key? Type 'y' or 'n': " a
+  done
+}
+
+# Function for delete ssh keys from the store
+function rcdk_ssh_store_del {
+  local a='y'
+  while [[ $a == 'y' ]]
+  do
+    if [[ -f $KEY_PATH ]]
+    then
+      IFS=$'\n'
+      local key_file=`cat $KEY_PATH`
+      local count=1
+      echo -e "${B}=== Delete keys from the storage ===${NC}"
+      for key in $key_file
+      do
+        echo "$count) $key"  | awk '{ print $1" "$2 }'
+        (( count++ ))
+      done
+      read -ep "Select key numbers for delete: " num
+      sed -i -e "$num d" "$KEY_PATH"
+      echo -e ${GREEN}Key $label successfully added to storage! ${NC}
+      read -ep "Enter another key? Type 'y' or 'n': " a
+    else
+      echo -e "${RED}There are no keys in the vault storage${NC}"
+      exit 1
+    fi
+  done
+}
+
+# Main function for ssh keys store
+function rcdk_ssh_store {
+  echo -e "${B}=== SSH keys store ===${NC}"
+  echo -e "${B}1 Add ssh key${NC}"
+  echo -e "${B}2 Delete ssh key${NC}"
+  read -ep "Enter a command number: " action
+
+  case "$action" in
+    "1") rcdk_ssh_store_add "${@:2}";;
+    "2") rcdk_ssh_store_del "${@:2}";;
+  esac
+}
