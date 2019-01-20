@@ -24,12 +24,55 @@ function rcdk_ssh_get {
 # Add new ssh key
 # Example: rcdk ssh add $label $sys_user_name $pub_key
 function rcdk_ssh_add {
-  rcdk_args_check 3 "$@"
-  local label=$1
-  local user_name=$2
-  local pub_key=$3
-  local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$label\",\"user\":\"$user_name\",\"publicKey\":\"$pub_key\"}"`
-  rcdk_parse "$response"
+  if [[ $1 ]]
+  then
+    rcdk_args_check 3 "$@"
+    local label=$1
+    local user_name=$2
+    local pub_key=$3
+    local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$label\",\"user\":\"$user_name\",\"publicKey\":\"$pub_key\"}"`
+    rcdk_parse "$response"
+  else
+    local a='y'
+    while [[ $a == 'y' ]]
+    do
+      if [[ -f $KEY_PATH ]]
+      then
+        local key_file=`cat $KEY_PATH`
+        local count=2
+        echo -e "${B}=== Add keys to system user ===${NC}"
+        echo "1) All"
+        while read key
+        do
+          echo "$count) $key" | awk '{ print $1" "$2 }'
+          (( count++ ))
+        done < "$KEY_PATH"
+        read -ep "Select key numbers to add: " num
+        read -ep "Enter a system user name: " user_name
+        if [[ $num == '1' ]]
+        then
+          while read file_line
+          do
+            local label=`echo "$file_line" | awk '{ print $1 }'`"-$user_name"
+            local pub_key=`echo "$file_line" | awk '{ print $2" "$3" "$4 }'`
+            local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$label\",\"user\":\"$user_name\",\"publicKey\":\"$pub_key\"}"`
+            rcdk_parse "$response"
+          done < "$KEY_PATH"
+        else
+          local str_num=$((num-1))
+          local str=`sed "${str_num}q;d" "$KEY_PATH"`
+          local label=`echo "$str" | awk '{ print $1 }'`"-$user_name"
+          local pub_key=`echo "$str" | awk '{ print $2" "$3" "$4 }'`
+          local response=`rcdk_request "servers/$server_id/sshcredentials/" "POST" "{\"label\":\"$label\",\"user\":\"$user_name\",\"publicKey\":\"$pub_key\"}"`
+          rcdk_parse "$response"
+        fi
+        read -ep "Add another keys? Type 'y' or 'n': " a
+      else
+        echo -e "${RED}There are no keys in the vault storage${NC}"
+        exit 1
+      fi
+    done
+  fi
 }
 
 # Delete ssh key by id
@@ -75,7 +118,7 @@ function rcdk_ssh_store_del {
       echo -e "${B}=== Delete keys from the storage ===${NC}"
       for key in $key_file
       do
-        echo "$count) $key"  | awk '{ print $1" "$2 }'
+        echo "$count) $key" | awk '{ print $1" "$2 }'
         (( count++ ))
       done
       read -ep "Select key numbers for delete: " num
