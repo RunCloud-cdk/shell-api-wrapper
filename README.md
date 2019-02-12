@@ -77,6 +77,7 @@ After the server has been selected, you can start working with most of the featu
 - [Add SSH public key to the system user of selected server](https://github.com/RunCloud-cdk/shell-api-wrapper#add-ssh-public-key-to-the-system-user-of-selected-server)
 - [Delete exists public key by id](https://github.com/RunCloud-cdk/shell-api-wrapper#delete-exists-public-key-by-id)
 - [Show list of all pubic keys of the selected server](https://github.com/RunCloud-cdk/shell-api-wrapper#show-list-of-all-pubic-keys-of-the-selected-server)
+- [Add or delete keys in store](https://github.com/RunCloud-cdk/shell-api-wrapper#add-or-delete-keys-in-store)
 
 ## System users
 ### Create new system user
@@ -342,3 +343,7 @@ rcdk ssh list $string || rcdk ssh list $number
 |:----:|:----:|:----------:|
 | string | Search string for the list. | yes |
 | number | The page number of the list. | yes |
+### Add or delete keys in store
+```bash
+rcdk ssh store
+```

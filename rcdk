@@ -42,7 +42,7 @@ _rcdk()
       return 0
       ;;
     ssh)
-      COMPREPLY=( $(compgen -W "add delete list" -- $cur) )
+      COMPREPLY=( $(compgen -W "add delete list store" -- $cur) )
       return 0
       ;;
   esac
