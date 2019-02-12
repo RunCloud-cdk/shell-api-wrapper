@@ -27,7 +27,7 @@ function rcdk_servers_get {
 function rcdk_servers_add {
   rcdk_args_check 2 "$@"
   local data="{\"serverName\":\"$1\",\"ipAddress\":\"$2\""
-  if [ -n $3 ]
+  if [[ $3 ]]
   then
     local provider=$3
     data+=",\"serverProvider\":\"$provider\""
@@ -60,6 +60,16 @@ function rcdk_servers_info_table {
 function rcdk_servers_info {
   local response=`rcdk_request "servers/$server_id/show/data" "GET"`
   rcdk_servers_info_table "$response"
+}
+
+# Check current runcloud server
+# Example: rcdk servers check
+function rcdk_servers_check {
+  local response=`rcdk_request "servers/$server_id" "GET"`
+  local srv_name=`echo $response | jq -r .serverName`
+  local ipAddress=`echo $response | jq -r .ipAddress`
+  local id=`echo $response | jq -r .id`
+  echo -e "Current server is ${B}$srv_name ($ipAddress)${NC}\nID - ${B}$id${NC}"
 }
 
 # Delete exists server from runcloud

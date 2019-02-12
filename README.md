@@ -36,6 +36,7 @@ After the server has been selected, you can start working with most of the featu
 ### Servers
 - [Add new server to Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#add-new-server-to-runcloud)
 - [Delete exists server from Runcloud](https://github.com/RunCloud-cdk/shell-api-wrapper#delete-exists-server-from-runcloud)
+- [Check current server](https://github.com/RunCloud-cdk/shell-api-wrapper#check-current-server)
 - [Show server hardware info](https://github.com/RunCloud-cdk/shell-api-wrapper#show-server-hardware-info)
 - [List of all your servers](https://github.com/RunCloud-cdk/shell-api-wrapper#list-of-all-your-servers)
 
@@ -131,6 +132,10 @@ rcdk servers delete $id
 ### Show server hardware info
 ```bash
 rcdk servers info
+```
+### Check current server
+```bash
+rcdk servers check
 ```
 ### List of all your servers
 ```bash

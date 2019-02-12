@@ -27,6 +27,7 @@ function rcdk_dbusers {
 function rcdk_servers {
   case "$1" in
     "info") rcdk_servers_info "${@:2}";;
+    "check") rcdk_servers_check "${@:2}";;
     "add") rcdk_servers_add "${@:2}";;
     "delete") rcdk_servers_delete "${@:2}";;
     "list") rcdk_servers_get "${@:2}";;
