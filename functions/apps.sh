@@ -88,7 +88,7 @@ function rcdk_apps_create {
     data+="posix_setuid,posix_times,posix_ttyname,posix_uname,proc_open,proc_close,proc_nice,proc_terminate,escapeshellcmd,"
     data+="ini_alter,popen,pcntl_exec,socket_accept,socket_bind,socket_clear_error,socket_close,socket_connect,symlink,"
     data+="posix_geteuid,ini_alter,socket_listen,socket_create_listen,socket_read,socket_create_pair,stream_socket_server\","
-    data+="\"maxExecutionTime\":30,\"maxInputTime\":60,\"maxInputVars\":1000,\"memoryLimit\":256,\"postMaxSize\":256,"
+    data+="\"maxExecutionTime\":60,\"maxInputTime\":120,\"maxInputVars\":1000,\"memoryLimit\":512,\"postMaxSize\":512,"
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
