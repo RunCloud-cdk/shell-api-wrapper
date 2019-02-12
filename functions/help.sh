@@ -146,7 +146,7 @@ function rcdk_help_ssh {
   "\nCommands\n" \
   "\n     add\t\t add new ssh key for the system user" \
   "\n     delete\t\t delete exists ssh key" \
-  "\n     list\t\t view one page of keys list or search keys by chars\n" \
+  "\n     list\t\t view one page of keys list or search keys by chars" \
   "\n     store\t\t add or delete keys in store\n" \
   "\nArguments\n" \
   "\n     add\t\t [*label, *sys_user_name, *pub_key]\t !add pub_key in apostrophes!" \
