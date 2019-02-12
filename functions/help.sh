@@ -88,6 +88,7 @@ function rcdk_help_servers {
   "\n     create\t\t create a new server" \
   "\n     delete\t\t delete exists server" \
   "\n     info\t\t show server hardware info" \
+  "\n     check\t\t check info about current server" \
   "\n     list\t\t view one page of servers list or search them by chars\n" \
   "\nArguments\n" \
   "\n     create\t\t [*srv_name, *srv_ip, provider]" \
@@ -146,6 +147,7 @@ function rcdk_help_ssh {
   "\n     add\t\t add new ssh key for the system user" \
   "\n     delete\t\t delete exists ssh key" \
   "\n     list\t\t view one page of keys list or search keys by chars\n" \
+  "\n     store\t\t add or delete keys in store\n" \
   "\nArguments\n" \
   "\n     add\t\t [*label, *sys_user_name, *pub_key]\t !add pub_key in apostrophes!" \
   "\n     delete\t\t [*label, *key_id]" \
