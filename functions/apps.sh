@@ -39,7 +39,8 @@ function rcdk_apps_create {
   done
   while [[ $domain_name = '' ]]
   do
-    read -ep "Enter a domain name for web application: " domain_name
+    read -ep "Enter a domain names for web application separated by spaces: " domain_name
+    read -a domains <<< "$domain_name"
   done
   read -ep "Choose owner of this web application (user runcloud by default): " user_name
   read -ep "Enter the public path: " public_path
@@ -75,7 +76,7 @@ function rcdk_apps_create {
     timezone+='Asia/Jerusalem'
   fi
   local data=""
-    data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"$domain_name\",\"user\":\"$user_name\","
+    data+="{\"webApplicationName\":\"$app_name\",\"domainName\":\"${domains[0]}\",\"user\":\"$user_name\","
     data+="\"publicPath\":\"$public_path\",\"phpVersion\":\"$php_version\",\"stack\":\"$stack\",\"stackMode\":\"$stack_mode\","
     data+="\"clickjackingProtection\":true,\"xssProtection\":true,\"mimeSniffingProtection\":true,"
     data+="\"processManager\":\"ondemand\",\"processManagerMaxChildren\":50,\"processManagerMaxRequests\":500,"
@@ -92,11 +93,19 @@ function rcdk_apps_create {
     data+="\"uploadMaxFilesize\":256,\"sessionGcMaxlifetime\":1440,\"allowUrlFopen\":true}"
   local response=`rcdk_request "servers/$server_id/webapps" "POST" $data`
   rcdk_parse "$response"
+  # Getting application id
+  local app_id=`rcdk_apps_get_id "$app_name"`
+  # SSL options
   if [[ ssl_on = 'y' ]]
   then
-    local app_id=`rcdk_apps_get_id $app_name`
-    rcdk_ssl_on $app_id
+    rcdk_ssl_on "$app_id"
   fi
+  # Adding other domains after creating an application
+  oth_domains=("${domains[@]:1}")
+  for domain in "${oth_domains[@]}"
+  do
+    rcdk_dns_add "$app_id" "$domain"
+  done
 }
 
 # Delete exists web application from runcloud
