@@ -69,7 +69,7 @@ function rcdk_servers_check {
   local srv_name=`echo $response | jq -r .serverName`
   local ipAddress=`echo $response | jq -r .ipAddress`
   local id=`echo $response | jq -r .id`
-  echo -e "Current server is ${B}$srv_name ($ipAddress)${NC}\nID - ${B}$id${NC}"
+  echo -e "Current server is ${GREEN}$srv_name ($ipAddress)${NC}\nID - ${GREEN}$id${NC}"
 }
 
 # Delete exists server from runcloud
